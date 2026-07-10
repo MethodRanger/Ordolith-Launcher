@@ -147,6 +147,12 @@ export const en = {
   news: {
     title: "What's new in Minecraft",
     subtitle: "Version highlights, newest first.",
+    searchPlaceholder: "Search updates",
+    noResults: "No updates match your search.",
+    added: "Added",
+    changed: "Changed",
+    fixed: "Fixed",
+    removed: "Removed",
   },
   settings: {
     title: "Settings",
@@ -193,47 +199,6 @@ export const en = {
     imported: "Instance imported",
     accountAdded: "Account added",
     error: "Something went wrong",
-  },
-  changelog: {
-    "1.21": {
-      title: "Tricky Trials",
-      summary: "Trial chambers, the mace, and new mobs.",
-      highlights: [
-        "Trial chambers with trial spawners and vaults",
-        "The mace — a powerful new weapon",
-        "Breeze and bogged mobs, plus the wind charge",
-        "Crafter block for automated crafting",
-      ],
-    },
-    "1.20": {
-      title: "Trails & Tales",
-      summary: "Archaeology, cherry groves, and camels.",
-      highlights: [
-        "Archaeology with brushes and suspicious sand",
-        "Cherry grove biome and pink petals",
-        "Camels, sniffers, and the ancient plant sculk",
-        "Bamboo wood set and hanging signs",
-      ],
-    },
-    "1.19": {
-      title: "The Wild Update",
-      summary: "The deep dark, the warden, and mangrove swamps.",
-      highlights: [
-        "Deep dark biome and ancient cities",
-        "The warden — a blind but deadly mob",
-        "Mangrove swamps and the frog family",
-        "Allay, the helpful item-gathering mob",
-      ],
-    },
-    "1.18": {
-      title: "Caves & Cliffs II",
-      summary: "Taller worlds and dramatic new terrain.",
-      highlights: [
-        "World height extended from -64 to 320",
-        "Lush caves and dripstone caves",
-        "Overhauled mountains and new cave generation",
-      ],
-    },
   },
 }
 

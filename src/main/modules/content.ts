@@ -33,9 +33,15 @@ function loaderFacet(loader: ModLoader): string | null {
   return loader === "vanilla" ? null : loader
 }
 
-async function modrinthSearch(query: ContentSearchQuery, instance: Instance): Promise<ContentProject[]> {
-  const facets: string[][] = [[`project_type:${query.type === "resourcepack" ? "resourcepack" : query.type}`], [`versions:${instance.versionId}`]]
-  const loader = loaderFacet(instance.loader)
+interface SearchScope {
+  loader: ModLoader
+  gameVersion?: string
+}
+
+async function modrinthSearch(query: ContentSearchQuery, scope: SearchScope): Promise<ContentProject[]> {
+  const facets: string[][] = [[`project_type:${query.type === "resourcepack" ? "resourcepack" : query.type}`]]
+  if (scope.gameVersion) facets.push([`versions:${scope.gameVersion}`])
+  const loader = loaderFacet(scope.loader)
   if (loader && query.type === "mod") facets.push([`categories:${loader}`])
   if (query.category) facets.push([`categories:${query.category}`])
   const params = new URLSearchParams({
@@ -65,18 +71,18 @@ async function modrinthSearch(query: ContentSearchQuery, instance: Instance): Pr
   }))
 }
 
-async function curseforgeSearch(query: ContentSearchQuery, instance: Instance): Promise<ContentProject[]> {
+async function curseforgeSearch(query: ContentSearchQuery, scope: SearchScope): Promise<ContentProject[]> {
   const key = process.env.CURSEFORGE_API_KEY
   if (!key) throw new Error("CurseForge API key is not configured")
   const classId = query.type === "mod" ? 6 : query.type === "resourcepack" ? 12 : 6552
   const params = new URLSearchParams({
     gameId: "432",
     classId: String(classId),
-    gameVersion: instance.versionId,
     searchFilter: query.query,
     pageSize: String(query.limit ?? 20),
     index: String(query.offset ?? 0),
   })
+  if (scope.gameVersion) params.set("gameVersion", scope.gameVersion)
   const response = await fetch(`${CURSEFORGE}/mods/search?${params}`, { headers: { "x-api-key": key } })
   if (!response.ok) throw new Error(`CurseForge returned ${response.status}`)
   const json = (await response.json()) as { data: Array<Record<string, unknown>> }
@@ -88,18 +94,21 @@ async function curseforgeSearch(query: ContentSearchQuery, instance: Instance): 
       id: String(raw.id), provider: "curseforge", slug: String(raw.slug), title: String(raw.name),
       description: String(raw.summary ?? ""), iconUrl: logo?.url, author: authors?.[0]?.name ?? "CurseForge creator",
       downloads: Number(raw.downloadCount ?? 0), updatedAt: String(raw.dateModified ?? ""), types: [query.type],
-      loaders: [], gameVersions: [instance.versionId], categories: categories?.map((item) => item.name) ?? [],
+      loaders: [], gameVersions: scope.gameVersion ? [scope.gameVersion] : (raw.latestFilesIndexes as Array<{ gameVersion?: string }> | undefined)?.map((f) => f.gameVersion ?? "").filter(Boolean) ?? [], categories: categories?.map((item) => item.name) ?? [],
     }
   })
 }
 
 export async function searchContent(query: ContentSearchQuery): Promise<ContentSearchResult> {
-  const instance = getInstance(query.instanceId)
-  if (!instance) throw new Error("Instance not found")
+  const instance = query.instanceId ? getInstance(query.instanceId) : undefined
+  const scope: SearchScope = {
+    loader: instance?.loader ?? query.loader ?? "vanilla",
+    gameVersion: instance?.versionId ?? query.gameVersion,
+  }
   const key = JSON.stringify(query)
   const cached = cache.get(key)
   if (cached && cached.expires > Date.now()) return cached.value
-  const [modrinth, curseforge] = await Promise.allSettled([modrinthSearch(query, instance), curseforgeSearch(query, instance)])
+  const [modrinth, curseforge] = await Promise.allSettled([modrinthSearch(query, scope), curseforgeSearch(query, scope)])
   const projects = [
     ...(modrinth.status === "fulfilled" ? modrinth.value : []),
     ...(curseforge.status === "fulfilled" ? curseforge.value : []),

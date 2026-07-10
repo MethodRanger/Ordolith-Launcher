@@ -148,6 +148,12 @@ export const es: Dictionary = {
   news: {
     title: "Novedades de Minecraft",
     subtitle: "Lo destacado por versión, de nuevo a antiguo.",
+    searchPlaceholder: "Buscar actualizaciones",
+    noResults: "Ninguna actualización coincide con tu búsqueda.",
+    added: "Añadido",
+    changed: "Cambiado",
+    fixed: "Corregido",
+    removed: "Eliminado",
   },
   settings: {
     title: "Ajustes",
@@ -194,46 +200,5 @@ export const es: Dictionary = {
     imported: "Instancia importada",
     accountAdded: "Cuenta añadida",
     error: "Algo salió mal",
-  },
-  changelog: {
-    "1.21": {
-      title: "Pruebas Peligrosas",
-      summary: "Cámaras de prueba, la maza y nuevos mobs.",
-      highlights: [
-        "Cámaras de prueba con generadores de prueba y cámaras acorazadas",
-        "La maza: una nueva y poderosa arma",
-        "Mobs brisa y ahogado óseo, además de la carga de viento",
-        "Bloque fabricador para crafteo automático",
-      ],
-    },
-    "1.20": {
-      title: "Senderos y Relatos",
-      summary: "Arqueología, arboledas de cerezos y camellos.",
-      highlights: [
-        "Arqueología con pinceles y arena sospechosa",
-        "Bioma de arboleda de cerezos y pétalos rosas",
-        "Camellos, olfateadores y la antigua planta sculk",
-        "Set de madera de bambú y carteles colgantes",
-      ],
-    },
-    "1.19": {
-      title: "La Actualización Salvaje",
-      summary: "La oscuridad profunda, el warden y los pantanos de manglar.",
-      highlights: [
-        "Bioma de oscuridad profunda y ciudades antiguas",
-        "El warden: un mob ciego pero letal",
-        "Pantanos de manglar y la familia de las ranas",
-        "Allay, el mob que recoge objetos",
-      ],
-    },
-    "1.18": {
-      title: "Cuevas y Acantilados II",
-      summary: "Mundos más altos y un nuevo terreno espectacular.",
-      highlights: [
-        "Altura del mundo ampliada de -64 a 320",
-        "Cuevas frondosas y cuevas de espeleotemas",
-        "Montañas renovadas y nueva generación de cuevas",
-      ],
-    },
   },
 }

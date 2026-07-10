@@ -11,7 +11,8 @@ const TYPE_KEYS: { id: ContentType; key: string }[] = [
 ]
 
 export interface ContentBrowserProps {
-  instanceId: string
+  /** Target instance for install + facet scoping. Optional when just browsing. */
+  instanceId?: string
   loader: string
   gameVersion: string
   /** Install a picked project. Return true on success. */
@@ -49,6 +50,8 @@ export function ContentBrowser({
         query,
         type,
         instanceId,
+        loader: loader as never,
+        gameVersion,
         limit: 40,
       })
       setCards(result.projects)
@@ -57,7 +60,7 @@ export function ContentBrowser({
     } finally {
       setLoading(false)
     }
-  }, [query, type, instanceId])
+  }, [query, type, instanceId, loader, gameVersion])
 
   useEffect(() => {
     void search()

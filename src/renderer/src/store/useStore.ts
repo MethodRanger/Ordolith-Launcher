@@ -132,3 +132,15 @@ export const useStore = create<StoreState>((set, get) => ({
 export function activeAccount(accounts: Account[]): Account | null {
   return accounts.find((a) => a.active) ?? accounts[0] ?? null
 }
+
+/**
+ * Resolve a displayable avatar URL for an account. Falls back to a deterministic
+ * Minecraft head render (Steve/Alex for unknown names) so every account — even
+ * older offline profiles stored without an avatar — shows a real head.
+ */
+export function accountAvatar(account: Pick<Account, "avatarUrl" | "username"> | null | undefined): string | undefined {
+  if (!account) return undefined
+  if (account.avatarUrl) return account.avatarUrl
+  if (account.username) return `https://mc-heads.net/avatar/${encodeURIComponent(account.username)}/64`
+  return undefined
+}

@@ -223,16 +223,59 @@
   font-size: 12px;
   color: var(--faint);
 }
-.release p {
+.release__body {
+  flex: 1;
+  min-width: 0;
+}
+.release__summary {
   margin: 0;
   color: var(--muted);
   line-height: 1.6;
 }
-.release ul {
-  margin: 10px 0 0;
-  padding-left: 18px;
+.news-search {
+  min-width: 220px;
+  flex: 0 0 auto;
+}
+.changelog {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px 20px;
+  margin-top: 14px;
+}
+.changelog__group {
+  min-width: 0;
+}
+.changelog__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.changelog__group.is-added .changelog__label {
+  color: var(--accent);
+}
+.changelog__group.is-changed .changelog__label {
+  color: var(--accent-2, var(--accent));
+}
+.changelog__group.is-fixed .changelog__label {
+  color: var(--faint);
+}
+.changelog__group.is-removed .changelog__label {
+  color: #f0846b;
+}
+.changelog ul {
+  margin: 0;
+  padding-left: 16px;
   color: var(--muted);
-  line-height: 1.7;
+  line-height: 1.6;
+  font-size: 13px;
+}
+.changelog li {
+  margin-bottom: 3px;
 }
 
 /* ---- Splash screen ---------------------------------------------- */
