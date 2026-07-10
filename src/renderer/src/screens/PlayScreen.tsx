@@ -2,20 +2,7 @@ import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Play, Square, Terminal, Trash2 } from "lucide-react"
 import { useStore } from "../store/useStore"
-
-const STAGE_LABEL: Record<string, string> = {
-  idle: "Ready",
-  manifest: "Fetching version manifest",
-  client: "Downloading client",
-  libraries: "Downloading libraries",
-  assets: "Downloading assets",
-  natives: "Extracting natives",
-  java: "Checking Java runtime",
-  launching: "Launching",
-  running: "Running",
-  done: "Ready",
-  error: "Error",
-}
+import { useI18n } from "../i18n"
 
 export function PlayScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
@@ -25,6 +12,8 @@ export function PlayScreen(): React.JSX.Element {
   const progress = useStore((s) => s.launch.progress)
   const logs = useStore((s) => s.launch.logs)
   const clearLogs = useStore((s) => s.clearLogs)
+  const { t } = useI18n()
+  const stageLabel = (stage: string): string => t(`stage.${stage}`)
   const [showLogs, setShowLogs] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -44,9 +33,9 @@ export function PlayScreen(): React.JSX.Element {
     setError(null)
     try {
       const res = await window.ordolith.launcher.launch(instance.id)
-      if (!res.ok) setError(res.error ?? "Launch failed.")
+      if (!res.ok) setError(res.error ?? t("play.launchFailed"))
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Launch failed.")
+      setError(e instanceof Error ? e.message : t("play.launchFailed"))
     }
   }
 
@@ -54,13 +43,14 @@ export function PlayScreen(): React.JSX.Element {
     return (
       <div className="content">
         <div className="page-head">
-          <h2>Play</h2>
-          <p>Get started by creating your first instance.</p>
+          <h2>{t("nav.play")}</h2>
+          <p>{t("play.getStarted")}</p>
         </div>
         <div className="empty glass">
-          <p>No instances yet.</p>
+          <img className="empty__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+          <p>{t("instances.empty")}</p>
           <button className="btn btn-accent" onClick={() => setView("instances")}>
-            Create an instance
+            {t("instances.newInstance")}
           </button>
         </div>
       </div>
@@ -86,7 +76,7 @@ export function PlayScreen(): React.JSX.Element {
           {busy && (
             <div className="progress" aria-live="polite">
               <div className="progress__meta">
-                <span>{STAGE_LABEL[progress!.stage] ?? progress!.stage}</span>
+                <span>{stageLabel(progress!.stage)}</span>
                 <span>{pct}%</span>
               </div>
               <div className="progress__track">
@@ -109,16 +99,16 @@ export function PlayScreen(): React.JSX.Element {
           <div className="hero__actions">
             {running ? (
               <button className="btn hero__stop" onClick={() => window.ordolith.launcher.stop(instance.id)}>
-                <Square size={18} /> Stop
+                <Square size={18} /> {t("play.stop")}
               </button>
             ) : (
               <button className="btn btn-accent hero__play" onClick={launch} disabled={busy}>
-                <Play size={20} /> {busy ? `${STAGE_LABEL[progress!.stage]}…` : "Play"}
+                <Play size={20} /> {busy ? `${stageLabel(progress!.stage)}…` : t("play.launch")}
               </button>
             )}
             <button
               className="btn btn-icon"
-              aria-label="Toggle game log"
+              aria-label={t("play.logs")}
               onClick={() => setShowLogs((v) => !v)}
             >
               <Terminal size={18} />
@@ -145,15 +135,15 @@ export function PlayScreen(): React.JSX.Element {
         <div className="logs glass">
           <div className="logs__head">
             <span>
-              <Terminal size={15} /> Game output
+              <Terminal size={15} /> {t("play.logs")}
             </span>
-            <button className="btn btn-ghost btn-icon" aria-label="Clear logs" onClick={clearLogs}>
+            <button className="btn btn-ghost btn-icon" aria-label={t("play.clearLogs")} onClick={clearLogs}>
               <Trash2 size={16} />
             </button>
           </div>
           <div className="logs__body">
             {logs.length === 0 ? (
-              <p className="logs__empty">No output yet. Launch the game to see logs here.</p>
+              <p className="logs__empty">{t("play.noLogs")}</p>
             ) : (
               logs.map((l, idx) => (
                 <div key={idx} className={`logs__line logs__line--${l.level}`}>

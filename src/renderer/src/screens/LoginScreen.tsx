@@ -2,11 +2,13 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { LogIn, User, Loader2 } from "lucide-react"
 import { useStore } from "../store/useStore"
+import { useI18n } from "../i18n"
 
 type Mode = "microsoft" | "offline"
 
 export function LoginScreen(): React.JSX.Element {
   const refreshAccounts = useStore((s) => s.refreshAccounts)
+  const { t } = useI18n()
   const [mode, setMode] = useState<Mode>("microsoft")
   const [username, setUsername] = useState("")
   const [busy, setBusy] = useState(false)
@@ -57,7 +59,7 @@ export function LoginScreen(): React.JSX.Element {
         <div className="login__brand">
           <img className="login__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
           <h1 className="login__title">Ordolith</h1>
-          <p className="login__subtitle">Transparent. Lightweight. Yours.</p>
+          <p className="login__subtitle">{t("login.subtitle")}</p>
         </div>
 
         <div className="segmented no-drag" role="tablist" aria-label="Sign-in method">
@@ -67,7 +69,7 @@ export function LoginScreen(): React.JSX.Element {
             className={`segmented__opt ${mode === "microsoft" ? "is-active" : ""}`}
             onClick={() => setMode("microsoft")}
           >
-            Microsoft
+            {t("login.modeMicrosoft")}
           </button>
           <button
             role="tab"
@@ -75,25 +77,22 @@ export function LoginScreen(): React.JSX.Element {
             className={`segmented__opt ${mode === "offline" ? "is-active" : ""}`}
             onClick={() => setMode("offline")}
           >
-            Offline
+            {t("login.modeOffline")}
           </button>
         </div>
 
         {mode === "microsoft" ? (
           <div className="login__panel">
-            <p className="login__hint">
-              Sign in with your Microsoft account to play online and access your owned copy of
-              Minecraft.
-            </p>
+            <p className="login__hint">{t("login.hintMicrosoft")}</p>
             <button className="btn btn-accent login__cta" onClick={signInMicrosoft} disabled={busy}>
               {busy ? <Loader2 className="spin" size={18} /> : <LogIn size={18} />}
-              {busy ? "Waiting for Microsoft…" : "Sign in with Microsoft"}
+              {t("login.microsoft")}
             </button>
           </div>
         ) : (
           <div className="login__panel">
             <div className="field">
-              <label htmlFor="offline-name">Username</label>
+              <label htmlFor="offline-name">{t("login.offlineName")}</label>
               <input
                 id="offline-name"
                 className="input"
@@ -108,13 +107,10 @@ export function LoginScreen(): React.JSX.Element {
                 }}
               />
             </div>
-            <p className="login__hint">
-              Offline mode works without a Microsoft account, but you can only join servers in
-              offline mode and cannot play on official online servers.
-            </p>
+            <p className="login__hint">{t("login.hintOffline")}</p>
             <button className="btn btn-accent login__cta" onClick={signInOffline} disabled={busy}>
               {busy ? <Loader2 className="spin" size={18} /> : <User size={18} />}
-              Continue offline
+              {t("login.offlinePlay")}
             </button>
           </div>
         )}

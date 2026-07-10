@@ -51,6 +51,7 @@ interface RawStatus {
   version?: { name?: string }
   players?: { online?: number; max?: number }
   description?: unknown
+  favicon?: string
 }
 
 /** Flatten Minecraft's chat-component MOTD into plain text. */
@@ -117,6 +118,11 @@ export function pingServer(host: string, port = 25565, timeoutMs = 4000): Promis
           playersMax: parsed.players?.max ?? 0,
           version: parsed.version?.name ?? "unknown",
           latencyMs: Date.now() - started,
+          // Servers embed a 64x64 base64 PNG data URI in the SLP handshake.
+          favicon:
+            typeof parsed.favicon === "string" && parsed.favicon.startsWith("data:image")
+              ? parsed.favicon
+              : undefined,
         })
       } catch {
         // Response not fully received yet — wait for more data.
