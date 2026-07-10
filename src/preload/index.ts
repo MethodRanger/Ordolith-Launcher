@@ -7,7 +7,10 @@ import type { GameLogLine, ProgressEvent } from "../shared/types.js"
  * Node or Electron leaks through — contextIsolation keeps this boundary safe.
  */
 const api: OrdolithApi = {
-  getInfo: () => ipcRenderer.invoke(IPC.app.getInfo),
+  app: {
+    getInfo: () => ipcRenderer.invoke(IPC.app.getInfo),
+    openDataDir: () => ipcRenderer.send(IPC.app.openDataDir),
+  },
 
   window: {
     minimize: () => ipcRenderer.send(IPC.window.minimize),
@@ -21,6 +24,7 @@ const api: OrdolithApi = {
     loginOffline: (username) => ipcRenderer.invoke(IPC.accounts.loginOffline, username),
     loginMicrosoft: () => ipcRenderer.invoke(IPC.accounts.loginMicrosoft),
     remove: (id) => ipcRenderer.invoke(IPC.accounts.remove, id),
+    logout: (id) => ipcRenderer.invoke(IPC.accounts.logout, id),
     setActive: (id) => ipcRenderer.invoke(IPC.accounts.setActive, id),
   },
 
@@ -44,7 +48,8 @@ const api: OrdolithApi = {
   },
 
   launcher: {
-    launch: (input) => ipcRenderer.invoke(IPC.launcher.launch, input),
+    launch: (instanceId, server) => ipcRenderer.invoke(IPC.launcher.launch, instanceId, server),
+    stop: (instanceId) => ipcRenderer.send(IPC.launcher.stop, instanceId),
     onProgress: (cb) => {
       const listener = (_e: IpcRendererEvent, payload: ProgressEvent): void => cb(payload)
       ipcRenderer.on(IPC.launcher.onProgress, listener)

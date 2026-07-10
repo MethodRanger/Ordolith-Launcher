@@ -1,5 +1,5 @@
-import { app, BrowserWindow, ipcMain } from "electron"
-import { IPC, type CreateInstanceInput, type LaunchInput } from "../shared/ipc.js"
+import { app, BrowserWindow, ipcMain, shell } from "electron"
+import { IPC, type CreateInstanceInput, type LaunchServerTarget } from "../shared/ipc.js"
 import type { AppInfo } from "../shared/types.js"
 import { paths } from "./paths.js"
 import {
@@ -19,7 +19,7 @@ import {
   updateInstance,
 } from "./modules/instances.js"
 import { addServer, listServers, pingServer, removeServer } from "./modules/servers.js"
-import { launchGame } from "./modules/launcher.js"
+import { launchGame, stopGame } from "./modules/launcher.js"
 
 /**
  * Registers all main-process IPC handlers. Called once during app startup.
@@ -39,6 +39,10 @@ export function registerIpcHandlers(): void {
     dataDir: paths.root,
   }))
 
+  ipcMain.on(IPC.app.openDataDir, () => {
+    void shell.openPath(paths.root)
+  })
+
   ipcMain.on(IPC.window.minimize, (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())
   ipcMain.on(IPC.window.maximizeToggle, (e) => {
     const w = BrowserWindow.fromWebContents(e.sender)
@@ -55,6 +59,7 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.accounts.loginOffline, (_e, username: string) => loginOffline(username))
   ipcMain.handle(IPC.accounts.loginMicrosoft, () => loginMicrosoft())
   ipcMain.handle(IPC.accounts.remove, (_e, id: string) => removeAccount(id))
+  ipcMain.handle(IPC.accounts.logout, (_e, id: string) => removeAccount(id))
   ipcMain.handle(IPC.accounts.setActive, (_e, id: string) => setActiveAccount(id))
 
   /* Versions -------------------------------------------------------- */
@@ -78,34 +83,39 @@ export function registerIpcHandlers(): void {
 
   /* Launcher -------------------------------------------------------- */
 
-  ipcMain.handle(IPC.launcher.launch, async (e, input: LaunchInput) => {
-    const instance = getInstance(input.instanceId)
-    if (!instance) return { ok: false, error: "Instance not found." }
+  ipcMain.handle(
+    IPC.launcher.launch,
+    async (e, instanceId: string, server?: LaunchServerTarget) => {
+      const instance = getInstance(instanceId)
+      if (!instance) return { ok: false, error: "Instance not found." }
 
-    const account = listAccounts().find((a) => a.active) ?? listAccounts()[0]
-    if (!account) return { ok: false, error: "Add an account before launching." }
+      const account = listAccounts().find((a) => a.active) ?? listAccounts()[0]
+      if (!account) return { ok: false, error: "Add an account before launching." }
 
-    // Real token for Microsoft accounts; a harmless dummy for offline play.
-    let accessToken = "0"
-    if (account.kind === "microsoft") {
-      try {
-        accessToken = await getValidMinecraftToken(account.id)
-      } catch (err) {
-        return { ok: false, error: err instanceof Error ? err.message : String(err) }
+      // Real token for Microsoft accounts; a harmless dummy for offline play.
+      let accessToken = "0"
+      if (account.kind === "microsoft") {
+        try {
+          accessToken = await getValidMinecraftToken(account.id)
+        } catch (err) {
+          return { ok: false, error: err instanceof Error ? err.message : String(err) }
+        }
       }
-    }
 
-    const sender = e.sender
-    return launchGame(
-      { instance, account, accessToken, server: input.server },
-      {
-        onProgress: (ev) => {
-          if (!sender.isDestroyed()) sender.send(IPC.launcher.onProgress, ev)
+      const sender = e.sender
+      return launchGame(
+        { instance, account, accessToken, server },
+        {
+          onProgress: (ev) => {
+            if (!sender.isDestroyed()) sender.send(IPC.launcher.onProgress, ev)
+          },
+          onLog: (ev) => {
+            if (!sender.isDestroyed()) sender.send(IPC.launcher.onLog, ev)
+          },
         },
-        onLog: (ev) => {
-          if (!sender.isDestroyed()) sender.send(IPC.launcher.onLog, ev)
-        },
-      },
-    )
-  })
+      )
+    },
+  )
+
+  ipcMain.on(IPC.launcher.stop, (_e, instanceId: string) => stopGame(instanceId))
 }

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process"
+import { spawn, type ChildProcess } from "node:child_process"
 import { delimiter } from "node:path"
 import { app } from "electron"
 import { paths } from "../paths.js"
@@ -13,6 +13,15 @@ import type { Account, GameLogLine, Instance, LaunchResult, ProgressEvent } from
 export interface LaunchCallbacks {
   onProgress: (e: ProgressEvent) => void
   onLog: (e: GameLogLine) => void
+}
+
+/** Currently running game processes, keyed by instance id. */
+const running = new Map<string, ChildProcess>()
+
+/** Terminate a running instance, if any. */
+export function stopGame(instanceId: string): void {
+  const child = running.get(instanceId)
+  if (child) child.kill()
 }
 
 export interface LaunchContext {
@@ -130,6 +139,7 @@ export async function launchGame(ctx: LaunchContext, cb: LaunchCallbacks): Promi
     // 4. Spawn.
     emit({ stage: "launching", fraction: 1, detail: "Starting Minecraft" })
     const child = spawn(javaBin, args, { cwd: gameDir })
+    running.set(instance.id, child)
 
     child.stdout.on("data", (buf: Buffer) => {
       cb.onLog({ instanceId: instance.id, level: "info", line: buf.toString(), ts: Date.now() })
@@ -141,6 +151,7 @@ export async function launchGame(ctx: LaunchContext, cb: LaunchCallbacks): Promi
       emit({ stage: "error", fraction: 0, detail: "Failed to start", error: err.message })
     })
     child.on("close", (code) => {
+      running.delete(instance.id)
       emit({
         stage: code === 0 ? "done" : "error",
         fraction: 1,

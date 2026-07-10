@@ -12,15 +12,18 @@ import type {
   Instance,
   InstanceSettings,
   LaunchResult,
+  ModLoader,
   ProgressEvent,
   SavedServer,
   ServerStatus,
   VersionManifest,
+  VersionSummary,
 } from "./types"
 
 export const IPC = {
   app: {
     getInfo: "app:getInfo",
+    openDataDir: "app:openDataDir",
   },
   window: {
     minimize: "window:minimize",
@@ -33,6 +36,7 @@ export const IPC = {
     loginOffline: "accounts:loginOffline",
     loginMicrosoft: "accounts:loginMicrosoft",
     remove: "accounts:remove",
+    logout: "accounts:logout",
     setActive: "accounts:setActive",
   },
   versions: {
@@ -53,6 +57,7 @@ export const IPC = {
   },
   launcher: {
     launch: "launcher:launch",
+    stop: "launcher:stop",
     onProgress: "launcher:onProgress",
     onLog: "launcher:onLog",
   },
@@ -61,19 +66,23 @@ export const IPC = {
 export interface CreateInstanceInput {
   name: string
   versionId: string
-  loader?: Instance["loader"]
+  loader?: ModLoader
+  iconColor?: string
   settings?: Partial<InstanceSettings>
 }
 
-export interface LaunchInput {
-  instanceId: string
-  /** Optional server to auto-connect to on launch. */
-  server?: { host: string; port: number }
+/** Optional server to auto-connect to on launch. */
+export interface LaunchServerTarget {
+  host: string
+  port: number
 }
 
 /** The API shape exposed on `window.ordolith` via the preload bridge. */
 export interface OrdolithApi {
-  getInfo: () => Promise<AppInfo>
+  app: {
+    getInfo: () => Promise<AppInfo>
+    openDataDir: () => void
+  }
 
   window: {
     minimize: () => void
@@ -87,6 +96,7 @@ export interface OrdolithApi {
     loginOffline: (username: string) => Promise<Account>
     loginMicrosoft: () => Promise<Account>
     remove: (id: string) => Promise<void>
+    logout: (id: string) => Promise<void>
     setActive: (id: string) => Promise<void>
   }
 
@@ -110,7 +120,8 @@ export interface OrdolithApi {
   }
 
   launcher: {
-    launch: (input: LaunchInput) => Promise<LaunchResult>
+    launch: (instanceId: string, server?: LaunchServerTarget) => Promise<LaunchResult>
+    stop: (instanceId: string) => void
     onProgress: (cb: (e: ProgressEvent) => void) => () => void
     onLog: (cb: (e: GameLogLine) => void) => () => void
   }
@@ -123,8 +134,10 @@ export type {
   Instance,
   InstanceSettings,
   LaunchResult,
+  ModLoader,
   ProgressEvent,
   SavedServer,
   ServerStatus,
   VersionManifest,
+  VersionSummary,
 }

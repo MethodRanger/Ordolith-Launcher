@@ -1,0 +1,53 @@
+appId: dev.methodranger.ordolith
+productName: Ordolith
+copyright: Copyright © 2026 MethodRanger
+
+directories:
+  output: release/${version}
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+
+# Bundle native/runtime node deps (e.g. adm-zip) with the app.
+asar: true
+npmRebuild: false
+
+# ---- Windows ------------------------------------------------------------
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - arm64
+  artifactName: ${productName}-${version}-win-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+
+# ---- macOS --------------------------------------------------------------
+mac:
+  category: public.app-category.games
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+  # Ad-hoc signing by default; supply identity + notarization in CI.
+  hardenedRuntime: true
+  gatekeeperAssess: false
+
+# ---- Linux --------------------------------------------------------------
+linux:
+  category: Game
+  target:
+    - AppImage
+    - deb
+    - tar.gz
+  maintainer: MethodRanger
+  artifactName: ${productName}-${version}-linux-${arch}.${ext}
