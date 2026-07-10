@@ -4,6 +4,7 @@ import { Plus, RefreshCw, Signal, Trash2, Users } from "lucide-react"
 import type { ServerStatus } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
+import logo from "../assets/logo"
 
 /** Public fallback icon service keyed by server address. */
 function fallbackIcon(host: string, port: number): string {
@@ -100,7 +101,7 @@ export function ServersScreen(): React.JSX.Element {
       <div className="server-list">
         {servers.length === 0 && (
           <div className="empty glass">
-            <img className="empty__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+            <img className="empty__logo" src={logo} alt="" aria-hidden />
             <p>{t("servers.empty")}</p>
           </div>
         )}

@@ -25,6 +25,7 @@ import { addServer, listServers, pingServer, removeServer } from "./modules/serv
 import { launchGame, stopGame } from "./modules/launcher.js"
 import { store } from "./store.js"
 import { installContent, listInstalled, removeContent, searchContent, toggleContent } from "./modules/content.js"
+import { installModpack, searchModpacks } from "./modules/modpacks.js"
 import { discoverJava, downloadRecommendedJava } from "./modules/java-runtimes.js"
 import { defaultExportName, exportInstance, importInstance } from "./modules/archives.js"
 
@@ -121,6 +122,14 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.content.listInstalled, (_e, instanceId, type) => listInstalled(instanceId, type))
   ipcMain.handle(IPC.content.toggle, (_e, instanceId, type, fileName, enabled) => toggleContent(instanceId, type, fileName, enabled))
   ipcMain.handle(IPC.content.remove, (_e, instanceId, type, fileName) => removeContent(instanceId, type, fileName))
+
+  /* Modpacks -------------------------------------------------------- */
+  ipcMain.handle(IPC.modpacks.search, (_e, query) => searchModpacks(query))
+  ipcMain.handle(IPC.modpacks.install, (e, project) =>
+    installModpack(project, (progress) => {
+      if (!e.sender.isDestroyed()) e.sender.send(IPC.modpacks.onProgress, progress)
+    }),
+  )
 
   /* Java ----------------------------------------------------------- */
   ipcMain.handle(IPC.java.discover, () => discoverJava())

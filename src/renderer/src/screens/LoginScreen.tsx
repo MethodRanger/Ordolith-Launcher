@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { LogIn, User, Loader2 } from "lucide-react"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
+import logo from "../assets/logo"
 
 type Mode = "microsoft" | "offline"
 
@@ -57,7 +58,7 @@ export function LoginScreen(): React.JSX.Element {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="login__brand">
-          <img className="login__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+          <img className="login__logo" src={logo} alt="" aria-hidden />
           <h1 className="login__title">Ordolith</h1>
           <p className="login__subtitle">{t("login.subtitle")}</p>
         </div>

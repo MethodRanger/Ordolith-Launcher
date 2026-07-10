@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import logo from "../assets/logo"
 
 /** Boot splash: the logo appears with a fade + scale, then the shell mounts. */
 export function Splash(): React.JSX.Element {
@@ -8,7 +9,7 @@ export function Splash(): React.JSX.Element {
       <div className="splash">
         <motion.img
           className="splash__logo"
-          src="/ordolith-logo.svg"
+          src={logo}
           alt="Ordolith"
           initial={{ opacity: 0, scale: 0.82 }}
           animate={{ opacity: 1, scale: 1 }}

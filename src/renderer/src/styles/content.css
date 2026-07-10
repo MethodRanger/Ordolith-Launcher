@@ -222,8 +222,11 @@
   height: 44px;
   border-radius: 10px;
   object-fit: cover;
+  object-position: center;
   flex: 0 0 44px;
   background: rgba(255, 255, 255, 0.04);
+  /* Server favicons are 64px pixel art; keep edges clean when downscaled. */
+  image-rendering: auto;
 }
 .empty {
   display: flex;
