@@ -5,9 +5,11 @@ import type {
   ContentProject,
   ContentSearchQuery,
   ContentSearchResult,
+  ContentUpdate,
   InstalledContent,
   Instance,
   ModLoader,
+  ResolvedDependency,
 } from "../../shared/types.js"
 import { downloadFile } from "./net.js"
 import { getInstance } from "./instances.js"
@@ -167,7 +169,12 @@ export async function getCompatibleFile(project: ContentProject, instanceId: str
   }
 }
 
-export async function installContent(instanceId: string, type: ContentSearchQuery["type"], project: ContentProject): Promise<InstalledContent> {
+export async function installContent(
+  instanceId: string,
+  type: ContentSearchQuery["type"],
+  project: ContentProject,
+  opts: { dependency?: boolean } = {},
+): Promise<InstalledContent> {
   const instance = getInstance(instanceId)
   if (!instance) throw new Error("Instance not found")
   const file = await getCompatibleFile(project, instanceId)
@@ -177,9 +184,120 @@ export async function installContent(instanceId: string, type: ContentSearchQuer
   const installed: InstalledContent = {
     id: `${project.provider}:${project.id}`, projectId: project.id, provider: project.provider, instanceId, type,
     title: project.title, fileName: file.fileName, versionName: file.name, enabled: true, installedAt: Date.now(),
+    compatible: true, dependency: opts.dependency ?? false, iconUrl: project.iconUrl,
   }
   writeFileSync(join(dir, `${safeFileName(file.fileName)}.ordolith.json`), JSON.stringify(installed, null, 2))
   return installed
+}
+
+/** Fetch a single project's metadata by id, normalised to `ContentProject`. */
+async function getProjectById(provider: ContentProject["provider"], id: string, type: ContentSearchQuery["type"]): Promise<ContentProject | null> {
+  try {
+    if (provider === "modrinth") {
+      const response = await fetch(`${MODRINTH}/project/${id}`, { headers: { "User-Agent": USER_AGENT } })
+      if (!response.ok) return null
+      const p = (await response.json()) as Record<string, unknown>
+      return {
+        id: String(p.id), provider: "modrinth", slug: String(p.slug), title: String(p.title),
+        description: String(p.description ?? ""), iconUrl: typeof p.icon_url === "string" ? p.icon_url : undefined,
+        author: "Modrinth", downloads: Number(p.downloads ?? 0), updatedAt: String(p.updated ?? ""),
+        types: [type], loaders: ((p.loaders as string[]) ?? []).filter((v): v is ModLoader => ["fabric", "forge", "quilt", "neoforge"].includes(v)),
+        gameVersions: (p.game_versions as string[]) ?? [], categories: (p.categories as string[]) ?? [],
+      }
+    }
+    const key = process.env.CURSEFORGE_API_KEY
+    if (!key) return null
+    const response = await fetch(`${CURSEFORGE}/mods/${id}`, { headers: { "x-api-key": key } })
+    if (!response.ok) return null
+    const raw = ((await response.json()) as { data: Record<string, unknown> }).data
+    const logo = raw.logo as { url?: string } | undefined
+    return {
+      id: String(raw.id), provider: "curseforge", slug: String(raw.slug), title: String(raw.name),
+      description: String(raw.summary ?? ""), iconUrl: logo?.url, author: "CurseForge",
+      downloads: Number(raw.downloadCount ?? 0), updatedAt: String(raw.dateModified ?? ""),
+      types: [type], loaders: [], gameVersions: [], categories: [],
+    }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Recursively resolve the required (and directly optional) dependencies of a
+ * project against an instance, with cycle protection, so the UI can confirm
+ * everything that will be installed alongside the user's pick.
+ */
+export async function resolveDependencies(instanceId: string, project: ContentProject): Promise<ResolvedDependency[]> {
+  const out: ResolvedDependency[] = []
+  const seen = new Set<string>([`${project.provider}:${project.id}`])
+  const queue: Array<{ id: string; required: boolean }> = []
+
+  const root = await getCompatibleFile(project, instanceId)
+  for (const dep of root.dependencies) queue.push({ id: dep.projectId, required: dep.required })
+
+  while (queue.length > 0) {
+    const next = queue.shift()!
+    if (!next.id) continue
+    const key = `${project.provider}:${next.id}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    const depProject = await getProjectById(project.provider, next.id, "mod")
+    if (!depProject) continue
+    try {
+      const depFile = await getCompatibleFile(depProject, instanceId)
+      out.push({ project: depProject, file: depFile, required: next.required })
+      for (const sub of depFile.dependencies) if (sub.required) queue.push({ id: sub.projectId, required: true })
+    } catch {
+      // No compatible dependency file — skip rather than blocking the install.
+    }
+  }
+  return out
+}
+
+/** Compare installed files against the latest compatible version per project. */
+export async function checkUpdates(instanceId: string, type: ContentSearchQuery["type"]): Promise<ContentUpdate[]> {
+  const installed = listInstalled(instanceId, type)
+  const updates: ContentUpdate[] = []
+  await Promise.all(
+    installed.map(async (item) => {
+      try {
+        const project = await getProjectById(item.provider, item.projectId, type)
+        if (!project) return
+        const latest = await getCompatibleFile(project, instanceId)
+        if (latest.fileName !== item.fileName) {
+          updates.push({
+            fileName: item.fileName, title: item.title, currentVersion: item.versionName,
+            latestVersion: latest.name, latestFileName: latest.fileName, size: latest.size,
+          })
+        }
+      } catch {
+        // Ignore projects we can't resolve right now.
+      }
+    }),
+  )
+  return updates
+}
+
+/** Replace an installed file with the latest compatible version. */
+export async function updateContent(instanceId: string, type: ContentSearchQuery["type"], fileName: string): Promise<InstalledContent> {
+  const existing = listInstalled(instanceId, type).find((item) => item.fileName === fileName)
+  if (!existing) throw new Error("Installed content not found")
+  const project = await getProjectById(existing.provider, existing.projectId, type)
+  if (!project) throw new Error("Project metadata unavailable")
+  removeContent(instanceId, type, fileName)
+  return installContent(instanceId, type, project, { dependency: existing.dependency })
+}
+
+/** Curated/popular projects for the recommendations rail (Modrinth catalog). */
+export async function getRecommended(type: ContentSearchQuery["type"], loader?: ModLoader, gameVersion?: string): Promise<ContentProject[]> {
+  try {
+    return await modrinthSearch(
+      { query: "", type, sort: "downloads", limit: 8, offset: 0 } as ContentSearchQuery,
+      { loader: loader ?? "vanilla", gameVersion },
+    )
+  } catch {
+    return []
+  }
 }
 
 export function listInstalled(instanceId: string, type: ContentSearchQuery["type"]): InstalledContent[] {
@@ -187,8 +305,16 @@ export function listInstalled(instanceId: string, type: ContentSearchQuery["type
   if (!instance) return []
   const dir = contentDir(instance, type)
   if (!existsSync(dir)) return []
+  const jars = new Set(readdirSync(dir).filter((n) => n.endsWith(".jar") || n.endsWith(".jar.disabled")))
   return readdirSync(dir).filter((name) => name.endsWith(".ordolith.json")).flatMap((name) => {
-    try { return [JSON.parse(readFileSync(join(dir, name), "utf8")) as InstalledContent] } catch { return [] }
+    try {
+      const item = JSON.parse(readFileSync(join(dir, name), "utf8")) as InstalledContent
+      // Reflect the real on-disk enabled state (.jar vs .jar.disabled).
+      const enabled = jars.has(item.fileName) || existsSync(join(dir, item.fileName))
+      return [{ ...item, enabled, compatible: item.compatible ?? true }]
+    } catch {
+      return []
+    }
   })
 }
 

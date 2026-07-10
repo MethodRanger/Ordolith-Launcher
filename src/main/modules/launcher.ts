@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process"
+import { randomUUID } from "node:crypto"
 import { delimiter } from "node:path"
 import { app } from "electron"
 import { paths } from "../paths.js"
@@ -6,13 +7,18 @@ import { installVersion } from "./downloader.js"
 import { detectJava } from "./java.js"
 import { getManifest } from "./versions.js"
 import { rulesAllow } from "./rules.js"
-import { markPlayed } from "./instances.js"
+import { addPlayTime, markPlayed } from "./instances.js"
+import { recordSession } from "./sessions.js"
+import { startMonitor, stopMonitor } from "./resource-monitor.js"
+import { store } from "../store.js"
+import { analyzeCrash, openCrashWindow } from "../crash-window.js"
 import type { ArgValue, VersionDetail } from "./mojang-types.js"
-import type { Account, GameLogLine, Instance, LaunchResult, ProgressEvent } from "../../shared/types.js"
+import type { Account, GameLogLine, Instance, LaunchResult, ProgressEvent, ResourceSample } from "../../shared/types.js"
 
 export interface LaunchCallbacks {
   onProgress: (e: ProgressEvent) => void
   onLog: (e: GameLogLine) => void
+  onResource?: (sample: ResourceSample) => void
 }
 
 /** Currently running game processes, keyed by instance id. */
@@ -145,17 +151,60 @@ export async function launchGame(ctx: LaunchContext, cb: LaunchCallbacks): Promi
     const child = spawn(javaBin, args, { cwd: gameDir })
     running.set(instance.id, child)
 
+    const startedAt = Date.now()
+    // Keep a rolling tail of the log for crash diagnostics.
+    const logTail: string[] = []
+    const appendTail = (line: string): void => {
+      logTail.push(line)
+      if (logTail.length > 600) logTail.splice(0, logTail.length - 600)
+    }
+
+    if (child.pid && cb.onResource) {
+      startMonitor(instance.id, child.pid, startedAt, cb.onResource)
+    }
+
     child.stdout.on("data", (buf: Buffer) => {
-      cb.onLog({ instanceId: instance.id, level: "info", line: buf.toString(), ts: Date.now() })
+      const line = buf.toString()
+      appendTail(line)
+      cb.onLog({ instanceId: instance.id, level: "info", line, ts: Date.now() })
     })
     child.stderr.on("data", (buf: Buffer) => {
-      cb.onLog({ instanceId: instance.id, level: "error", line: buf.toString(), ts: Date.now() })
+      const line = buf.toString()
+      appendTail(line)
+      cb.onLog({ instanceId: instance.id, level: "error", line, ts: Date.now() })
     })
     child.on("error", (err) => {
       emit({ stage: "error", fraction: 0, detail: "Failed to start", error: err.message })
     })
     child.on("close", (code) => {
       running.delete(instance.id)
+      stopMonitor(instance.id)
+
+      const crashed = code !== 0 && code !== null
+      const durationMs = Date.now() - startedAt
+      recordSession({
+        id: randomUUID(),
+        instanceId: instance.id,
+        instanceName: instance.name,
+        startedAt,
+        endedAt: Date.now(),
+        durationMs,
+        crashed,
+      })
+      addPlayTime(instance.id, durationMs)
+
+      if (crashed && store.getSettings().crashAssistant) {
+        const log = logTail.join("")
+        openCrashWindow({
+          instanceId: instance.id,
+          instanceName: instance.name,
+          exitCode: code,
+          log,
+          hints: analyzeCrash(log),
+          createdAt: Date.now(),
+        })
+      }
+
       emit({
         stage: code === 0 ? "done" : "error",
         fraction: 1,
