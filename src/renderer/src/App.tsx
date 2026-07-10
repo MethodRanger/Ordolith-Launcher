@@ -1,70 +1,65 @@
 import { useEffect, useState } from "react"
-import type { AppInfo } from "@shared/ipc"
+import { AnimatePresence, motion } from "framer-motion"
+import { TitleBar } from "./components/TitleBar"
+import { Sidebar } from "./components/Sidebar"
+import { LoginScreen } from "./screens/LoginScreen"
+import { PlayScreen } from "./screens/PlayScreen"
+import { InstancesScreen } from "./screens/InstancesScreen"
+import { ServersScreen } from "./screens/ServersScreen"
+import { SettingsScreen } from "./screens/SettingsScreen"
+import { useStore } from "./store/useStore"
 
-/**
- * Placeholder shell for the launcher. This exists to prove the
- * main <-> preload <-> renderer IPC round-trip works end to end.
- * The real UI/design is layered on top of this later.
- */
 export function App(): React.JSX.Element {
-  const [info, setInfo] = useState<AppInfo | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const ready = useStore((s) => s.ready)
+  const view = useStore((s) => s.view)
+  const accounts = useStore((s) => s.accounts)
+  const bootstrap = useStore((s) => s.bootstrap)
+  const [platform, setPlatform] = useState<NodeJS.Platform>("linux")
 
   useEffect(() => {
-    window.ordolith
-      .getInfo()
-      .then(setInfo)
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : String(err))
-      })
-  }, [])
+    bootstrap()
+    window.ordolith.app.getInfo().then((i) => setPlatform(i.platform))
+  }, [bootstrap])
+
+  if (!ready) {
+    return (
+      <>
+        <div className="app-backdrop" />
+        <div className="boot">
+          <span className="boot__logo" aria-hidden />
+        </div>
+      </>
+    )
+  }
+
+  if (accounts.length === 0) {
+    return <LoginScreen />
+  }
 
   return (
-    <main className="shell">
-      <header className="shell__header">
-        <h1 className="shell__title">Ordolith</h1>
-        <p className="shell__subtitle">Minecraft: Java Edition launcher</p>
-      </header>
-
-      <section className="shell__panel">
-        <h2>IPC status</h2>
-        {error ? (
-          <p className="shell__error">Bridge error: {error}</p>
-        ) : info ? (
-          <dl className="shell__info">
-            <div>
-              <dt>App</dt>
-              <dd>
-                {info.name} v{info.version}
-              </dd>
-            </div>
-            <div>
-              <dt>Electron</dt>
-              <dd>{info.electron}</dd>
-            </div>
-            <div>
-              <dt>Chromium</dt>
-              <dd>{info.chrome}</dd>
-            </div>
-            <div>
-              <dt>Node</dt>
-              <dd>{info.node}</dd>
-            </div>
-            <div>
-              <dt>Platform</dt>
-              <dd>
-                {info.platform} ({info.arch})
-              </dd>
-            </div>
-          </dl>
-        ) : (
-          <p>Connecting to main process…</p>
-        )}
-      </section>
-
-      <footer className="shell__footer">
-        <span>{"Scaffold ready — design & features come next."}</span>
-      </footer>
-    </main>
+    <div className="shell">
+      <div className="app-backdrop" />
+      <TitleBar platform={platform} />
+      <div className="shell__body">
+        <Sidebar />
+        <main className="shell__main">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={view}
+              className="view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {view === "play" && <PlayScreen />}
+              {view === "instances" && <InstancesScreen />}
+              {view === "servers" && <ServersScreen />}
+              {view === "settings" && <SettingsScreen />}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
+    </div>
   )
 }
