@@ -55,7 +55,7 @@ export function LoginScreen(): React.JSX.Element {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="login__brand">
-          <span className="login__logo" aria-hidden />
+          <img className="login__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
           <h1 className="login__title">Ordolith</h1>
           <p className="login__subtitle">Transparent. Lightweight. Yours.</p>
         </div>

@@ -1,10 +1,12 @@
-import { Boxes, Gamepad2, Server, Settings } from "lucide-react"
+import { Boxes, Gamepad2, Newspaper, PackageSearch, Server, Settings } from "lucide-react"
 import { activeAccount, useStore, type View } from "../store/useStore"
 
 const NAV: { id: View; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
   { id: "play", label: "Play", icon: Gamepad2 },
   { id: "instances", label: "Instances", icon: Boxes },
+  { id: "mods", label: "Content", icon: PackageSearch },
   { id: "servers", label: "Servers", icon: Server },
+  { id: "news", label: "News", icon: Newspaper },
   { id: "settings", label: "Settings", icon: Settings },
 ]
 
