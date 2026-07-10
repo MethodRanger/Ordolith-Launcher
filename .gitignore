@@ -141,3 +141,23 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# Electron build output
+out/
+release/
+app/dist/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.snap
+
+# Local launcher data (accounts, tokens, downloaded game)
+.minecraft/
+accounts.json
+*.token
+config/local.json
+
+# OS junk
+.DS_Store
+Thumbs.db
