@@ -9,6 +9,8 @@ import { ServersScreen } from "./screens/ServersScreen"
 import { ModsScreen } from "./screens/ModsScreen"
 import { NewsScreen } from "./screens/NewsScreen"
 import { SettingsScreen } from "./screens/SettingsScreen"
+import { Splash } from "./components/Splash"
+import { ToastHost } from "./components/ToastHost"
 import { useStore } from "./store/useStore"
 
 export function App(): React.JSX.Element {
@@ -24,18 +26,16 @@ export function App(): React.JSX.Element {
   }, [bootstrap])
 
   if (!ready) {
-    return (
-      <>
-        <div className="app-backdrop" />
-        <div className="boot">
-          <span className="boot__logo" aria-hidden />
-        </div>
-      </>
-    )
+    return <Splash />
   }
 
   if (accounts.length === 0) {
-    return <LoginScreen />
+    return (
+      <>
+        <LoginScreen />
+        <ToastHost />
+      </>
+    )
   }
 
   return (
@@ -64,6 +64,7 @@ export function App(): React.JSX.Element {
           </AnimatePresence>
         </main>
       </div>
+      <ToastHost />
     </div>
   )
 }

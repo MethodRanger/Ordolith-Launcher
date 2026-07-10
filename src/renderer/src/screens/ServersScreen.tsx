@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Plus, RefreshCw, Signal, Trash2, Users } from "lucide-react"
+import { Plus, RefreshCw, Server as ServerIcon, Signal, Trash2, Users } from "lucide-react"
 import type { ServerStatus } from "@shared/ipc"
 import { useStore } from "../store/useStore"
+import { useI18n } from "../i18n"
+
+/** Public fallback icon service keyed by server address. */
+function fallbackIcon(host: string, port: number): string {
+  const addr = port === 25565 ? host : `${host}:${port}`
+  return `https://api.mcstatus.io/v2/icon/${encodeURIComponent(addr)}`
+}
 
 export function ServersScreen(): React.JSX.Element {
   const servers = useStore((s) => s.servers)
   const refreshServers = useStore((s) => s.refreshServers)
+  const { t } = useI18n()
   const [statuses, setStatuses] = useState<Record<string, ServerStatus | "loading">>({})
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState("")
@@ -49,15 +57,15 @@ export function ServersScreen(): React.JSX.Element {
     <div className="content">
       <div className="page-head page-head--row">
         <div>
-          <h2>Servers</h2>
-          <p>Save your favorite servers and see who is online at a glance.</p>
+          <h2>{t("servers.title")}</h2>
+          <p>{t("servers.subtitle")}</p>
         </div>
         <div className="page-head__tools">
-          <button className="btn btn-icon" aria-label="Refresh all" onClick={pingAll}>
+          <button className="btn btn-icon" aria-label={t("common.retry")} onClick={pingAll}>
             <RefreshCw size={17} />
           </button>
           <button className="btn btn-accent" onClick={() => setAdding((v) => !v)}>
-            <Plus size={18} /> Add server
+            <Plus size={18} /> {t("common.add")}
           </button>
         </div>
       </div>
@@ -70,13 +78,13 @@ export function ServersScreen(): React.JSX.Element {
         >
           <input
             className="input"
-            placeholder="Server name"
+            placeholder={t("servers.name")}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <input
             className="input"
-            placeholder="play.example.com:25565"
+            placeholder={t("servers.address")}
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             onKeyDown={(e) => {
@@ -84,7 +92,7 @@ export function ServersScreen(): React.JSX.Element {
             }}
           />
           <button className="btn btn-accent" onClick={add}>
-            Save
+            {t("common.save")}
           </button>
         </motion.div>
       )}
@@ -92,12 +100,14 @@ export function ServersScreen(): React.JSX.Element {
       <div className="server-list">
         {servers.length === 0 && (
           <div className="empty glass">
-            <p>No saved servers yet.</p>
+            <img className="empty__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+            <p>{t("servers.empty")}</p>
           </div>
         )}
         {servers.map((srv) => {
           const status = statuses[srv.id]
           const online = status && status !== "loading" && status.online
+          const icon = status && status !== "loading" ? status.favicon : undefined
           return (
             <motion.div key={srv.id} layout className="server glass">
               <span
@@ -105,6 +115,15 @@ export function ServersScreen(): React.JSX.Element {
                   status === "loading" ? "is-loading" : online ? "is-online" : "is-offline"
                 }`}
                 aria-hidden
+              />
+              <img
+                className="server__icon"
+                src={icon ?? fallbackIcon(srv.host, srv.port)}
+                alt=""
+                aria-hidden
+                onError={(e) => {
+                  e.currentTarget.style.visibility = "hidden"
+                }}
               />
               <div className="server__info">
                 <h3>{srv.name}</h3>
@@ -117,12 +136,12 @@ export function ServersScreen(): React.JSX.Element {
                 )}
                 {status && status !== "loading" && !status.online && (
                   <p className="server__motd server__motd--off">
-                    {status.error ?? "Offline"}
+                    {status.error ?? t("servers.offline")}
                   </p>
                 )}
               </div>
               <div className="server__stats">
-                {status === "loading" && <span className="server__stat">Pinging…</span>}
+                {status === "loading" && <span className="server__stat">{t("common.loading")}…</span>}
                 {status && status !== "loading" && status.online && (
                   <>
                     <span className="server__stat">

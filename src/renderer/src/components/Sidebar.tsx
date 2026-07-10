@@ -1,13 +1,15 @@
+import { motion } from "framer-motion"
 import { Boxes, Gamepad2, Newspaper, PackageSearch, Server, Settings } from "lucide-react"
 import { activeAccount, useStore, type View } from "../store/useStore"
+import { useI18n } from "../i18n"
 
-const NAV: { id: View; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
-  { id: "play", label: "Play", icon: Gamepad2 },
-  { id: "instances", label: "Instances", icon: Boxes },
-  { id: "mods", label: "Content", icon: PackageSearch },
-  { id: "servers", label: "Servers", icon: Server },
-  { id: "news", label: "News", icon: Newspaper },
-  { id: "settings", label: "Settings", icon: Settings },
+const NAV: { id: View; key: string; icon: React.ComponentType<{ size?: number }> }[] = [
+  { id: "play", key: "nav.play", icon: Gamepad2 },
+  { id: "instances", key: "nav.instances", icon: Boxes },
+  { id: "mods", key: "nav.mods", icon: PackageSearch },
+  { id: "servers", key: "nav.servers", icon: Server },
+  { id: "news", key: "nav.news", icon: Newspaper },
+  { id: "settings", key: "nav.settings", icon: Settings },
 ]
 
 export function Sidebar(): React.JSX.Element {
@@ -15,21 +17,29 @@ export function Sidebar(): React.JSX.Element {
   const setView = useStore((s) => s.setView)
   const accounts = useStore((s) => s.accounts)
   const account = activeAccount(accounts)
+  const { t } = useI18n()
 
   return (
     <nav className="sidebar glass" aria-label="Primary">
       <ul className="sidebar__nav">
-        {NAV.map(({ id, label, icon: Icon }) => (
+        {NAV.map(({ id, key, icon: Icon }) => (
           <li key={id}>
             <button
               className={`sidebar__item ${view === id ? "is-active" : ""}`}
               onClick={() => setView(id)}
               aria-current={view === id ? "page" : undefined}
             >
+              {view === id && (
+                <motion.span
+                  className="sidebar__active"
+                  layoutId="sidebar-active"
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                />
+              )}
               <span className="sidebar__icon">
                 <Icon size={20} />
               </span>
-              <span className="sidebar__label">{label}</span>
+              <span className="sidebar__label">{t(key)}</span>
             </button>
           </li>
         ))}
@@ -46,9 +56,9 @@ export function Sidebar(): React.JSX.Element {
           {!account?.avatarUrl && (account?.username?.[0]?.toUpperCase() ?? "?")}
         </span>
         <span className="sidebar__account-meta">
-          <span className="sidebar__account-name">{account?.username ?? "No account"}</span>
+          <span className="sidebar__account-name">{account?.username ?? t("login.modeOffline")}</span>
           <span className="sidebar__account-kind">
-            {account ? (account.kind === "microsoft" ? "Microsoft" : "Offline") : "Sign in"}
+            {account ? (account.kind === "microsoft" ? "Microsoft" : t("common.offline")) : t("login.microsoft")}
           </span>
         </span>
       </button>

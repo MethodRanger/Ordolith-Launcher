@@ -3,17 +3,20 @@ import { motion } from "framer-motion"
 import { Download, Loader2, PackageOpen, Search, Trash2, ToggleLeft, ToggleRight } from "lucide-react"
 import type { ContentProject, ContentType, InstalledContent } from "@shared/ipc"
 import { useStore } from "../store/useStore"
+import { useI18n } from "../i18n"
 
-const TYPES: { id: ContentType; label: string }[] = [
-  { id: "mod", label: "Mods" },
-  { id: "resourcepack", label: "Resource packs" },
-  { id: "shader", label: "Shaders" },
+const TYPE_KEYS: { id: ContentType; key: string }[] = [
+  { id: "mod", key: "mods.typeMod" },
+  { id: "resourcepack", key: "mods.typeResourcepack" },
+  { id: "shader", key: "mods.typeShader" },
 ]
 
 export function ModsScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
   const selectedId = useStore((s) => s.selectedInstanceId)
   const selectInstance = useStore((s) => s.selectInstance)
+  const pushToast = useStore((s) => s.pushToast)
+  const { t } = useI18n()
   const instance = instances.find((item) => item.id === selectedId) ?? instances[0]
   const [type, setType] = useState<ContentType>("mod")
   const [tab, setTab] = useState<"browse" | "installed">("browse")

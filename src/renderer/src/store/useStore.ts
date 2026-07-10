@@ -3,16 +3,24 @@ import type {
   Account,
   GameLogLine,
   Instance,
+  LauncherSettings,
   ProgressEvent,
   SavedServer,
   VersionSummary,
 } from "@shared/ipc"
+import { useI18nStore } from "../i18n"
 
 export type View = "play" | "instances" | "mods" | "servers" | "news" | "settings"
 
 interface LaunchState {
   progress: ProgressEvent | null
   logs: GameLogLine[]
+}
+
+export interface Toast {
+  id: string
+  message: string
+  kind: "success" | "error" | "info"
 }
 
 interface StoreState {
@@ -25,14 +33,19 @@ interface StoreState {
   latestRelease: string
   selectedInstanceId: string | null
   launch: LaunchState
+  settings: LauncherSettings | null
+  toasts: Toast[]
 
   setView: (view: View) => void
   bootstrap: () => Promise<void>
   refreshAccounts: () => Promise<void>
   refreshInstances: () => Promise<void>
   refreshServers: () => Promise<void>
+  refreshSettings: () => Promise<void>
   selectInstance: (id: string | null) => void
   clearLogs: () => void
+  pushToast: (message: string, kind?: Toast["kind"]) => void
+  dismissToast: (id: string) => void
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -45,15 +58,21 @@ export const useStore = create<StoreState>((set, get) => ({
   latestRelease: "",
   selectedInstanceId: null,
   launch: { progress: null, logs: [] },
+  settings: null,
+  toasts: [],
 
   setView: (view) => set({ view }),
 
   bootstrap: async () => {
-    const [accounts, instances, servers] = await Promise.all([
+    const [accounts, instances, servers, settings] = await Promise.all([
       window.ordolith.accounts.list(),
       window.ordolith.instances.list(),
       window.ordolith.servers.list(),
+      window.ordolith.app.getSettings(),
     ])
+
+    // Apply the persisted interface language.
+    useI18nStore.setState({ locale: settings.locale })
 
     // Versions can be slow / offline — never block the first paint on them.
     window.ordolith.versions
@@ -73,6 +92,7 @@ export const useStore = create<StoreState>((set, get) => ({
       accounts,
       instances,
       servers,
+      settings,
       selectedInstanceId: get().selectedInstanceId ?? instances[0]?.id ?? null,
       ready: true,
     })
@@ -93,9 +113,19 @@ export const useStore = create<StoreState>((set, get) => ({
 
   refreshServers: async () => set({ servers: await window.ordolith.servers.list() }),
 
+  refreshSettings: async () => set({ settings: await window.ordolith.app.getSettings() }),
+
   selectInstance: (id) => set({ selectedInstanceId: id }),
 
   clearLogs: () => set((s) => ({ launch: { ...s.launch, logs: [] } })),
+
+  pushToast: (message, kind = "info") => {
+    const id = crypto.randomUUID()
+    set((s) => ({ toasts: [...s.toasts, { id, message, kind }] }))
+    setTimeout(() => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), 4000)
+  },
+
+  dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }))
 
 /** Convenience selector for the currently active account. */
