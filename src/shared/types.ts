@@ -163,6 +163,7 @@ export interface LauncherSettings {
   locale: AppLocale
   defaultMinMemoryMb: number
   defaultMaxMemoryMb: number
+  jvmArgs: string
   closeToTray: boolean
 }
 

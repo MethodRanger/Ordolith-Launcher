@@ -1,22 +1,12 @@
 import { useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Clock, Play, Plus, Trash2 } from "lucide-react"
+import { Clock, Download, FolderOpen, Play, Plus, Trash2, Upload } from "lucide-react"
 import type { ModLoader } from "@shared/ipc"
 import { useStore } from "../store/useStore"
+import { useI18n } from "../i18n"
 
-const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt"]
+const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt", "neoforge"]
 const COLORS = ["#4cc8ff", "#41d1a7", "#ffb454", "#ff6b6b", "#a78bfa", "#f472b6"]
-
-function relativeTime(ts?: number): string {
-  if (!ts) return "Never played"
-  const diff = Date.now() - ts
-  const mins = Math.round(diff / 60000)
-  if (mins < 1) return "Just now"
-  if (mins < 60) return `${mins}m ago`
-  const hrs = Math.round(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  return `${Math.round(hrs / 24)}d ago`
-}
 
 export function InstancesScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
@@ -25,8 +15,21 @@ export function InstancesScreen(): React.JSX.Element {
   const refreshInstances = useStore((s) => s.refreshInstances)
   const selectInstance = useStore((s) => s.selectInstance)
   const setView = useStore((s) => s.setView)
+  const pushToast = useStore((s) => s.pushToast)
+  const { t } = useI18n()
 
   const [creating, setCreating] = useState(false)
+
+  function relativeTime(ts?: number): string {
+    if (!ts) return t("instances.never")
+    const diff = Date.now() - ts
+    const mins = Math.round(diff / 60000)
+    if (mins < 1) return t("instances.justNow")
+    if (mins < 60) return t("instances.minsAgo", { n: mins })
+    const hrs = Math.round(mins / 60)
+    if (hrs < 24) return t("instances.hrsAgo", { n: hrs })
+    return t("instances.daysAgo", { n: Math.round(hrs / 24) })
+  }
 
   async function remove(id: string): Promise<void> {
     await window.ordolith.instances.remove(id)
@@ -38,16 +41,36 @@ export function InstancesScreen(): React.JSX.Element {
     setView("play")
   }
 
+  async function exportInstance(id: string): Promise<void> {
+    const res = await window.ordolith.instances.export(id)
+    pushToast(res.ok ? t("toast.exported") : t("toast.error"), res.ok ? "success" : "error")
+  }
+
+  async function importInstance(): Promise<void> {
+    const res = await window.ordolith.instances.import()
+    if (res.ok) {
+      await refreshInstances()
+      pushToast(t("toast.imported"), "success")
+    } else if (res.error !== "Cancelled") {
+      pushToast(t("toast.error"), "error")
+    }
+  }
+
   return (
     <div className="content">
       <div className="page-head page-head--row">
         <div>
-          <h2>Instances</h2>
-          <p>Isolated game folders, each with its own version, mods and settings.</p>
+          <h2>{t("instances.title")}</h2>
+          <p>{t("instances.subtitle")}</p>
         </div>
-        <button className="btn btn-accent" onClick={() => setCreating(true)}>
-          <Plus size={18} /> New instance
-        </button>
+        <div className="page-head__tools">
+          <button className="btn" onClick={importInstance}>
+            <Upload size={16} /> {t("instances.import")}
+          </button>
+          <button className="btn btn-accent" onClick={() => setCreating(true)}>
+            <Plus size={18} /> {t("instances.newInstance")}
+          </button>
+        </div>
       </div>
 
       <div className="grid">
@@ -72,11 +95,25 @@ export function InstancesScreen(): React.JSX.Element {
             </p>
             <div className="card__actions">
               <button className="btn btn-accent" onClick={() => playNow(i.id)}>
-                <Play size={16} /> Play
+                <Play size={16} /> {t("play.launch")}
               </button>
               <button
                 className="btn btn-icon"
-                aria-label={`Delete ${i.name}`}
+                aria-label={t("instances.open")}
+                onClick={() => window.ordolith.instances.openFolder(i.id)}
+              >
+                <FolderOpen size={16} />
+              </button>
+              <button
+                className="btn btn-icon"
+                aria-label={t("instances.export")}
+                onClick={() => exportInstance(i.id)}
+              >
+                <Download size={16} />
+              </button>
+              <button
+                className="btn btn-icon"
+                aria-label={t("common.remove")}
                 onClick={() => remove(i.id)}
               >
                 <Trash2 size={16} />
@@ -114,6 +151,7 @@ function CreateInstanceDialog({
   onClose: () => void
   onCreated: () => void
 }): React.JSX.Element {
+  const { t } = useI18n()
   const [name, setName] = useState("")
   const [loader, setLoader] = useState<ModLoader>("vanilla")
   const [version, setVersion] = useState(defaultVersion)
@@ -155,10 +193,10 @@ function CreateInstanceDialog({
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="modal__title">New instance</h3>
+        <h3 className="modal__title">{t("instances.newInstance")}</h3>
 
         <div className="field">
-          <label htmlFor="inst-name">Name</label>
+          <label htmlFor="inst-name">{t("instances.name")}</label>
           <input
             id="inst-name"
             className="input"
@@ -170,7 +208,7 @@ function CreateInstanceDialog({
         </div>
 
         <div className="field">
-          <label>Mod loader</label>
+          <label>{t("instances.loader")}</label>
           <div className="segmented">
             {LOADERS.map((l) => (
               <button
@@ -186,13 +224,13 @@ function CreateInstanceDialog({
 
         <div className="field">
           <label htmlFor="inst-version">
-            Version
+            {t("instances.version")}
             <button
               className="link-toggle"
               onClick={() => setShowSnapshots((v) => !v)}
               type="button"
             >
-              {showSnapshots ? "Hide snapshots" : "Show snapshots"}
+              {showSnapshots ? t("instances.hideSnapshots") : t("instances.showSnapshots")}
             </button>
           </label>
           <select
@@ -201,7 +239,7 @@ function CreateInstanceDialog({
             value={version}
             onChange={(e) => setVersion(e.target.value)}
           >
-            {list.length === 0 && <option value="">Loading versions…</option>}
+            {list.length === 0 && <option value="">{t("common.loading")}…</option>}
             {list.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.id}
@@ -212,7 +250,7 @@ function CreateInstanceDialog({
         </div>
 
         <div className="field">
-          <label>Accent</label>
+          <label>{t("instances.iconColor")}</label>
           <div className="swatches">
             {COLORS.map((c) => (
               <button
@@ -228,14 +266,14 @@ function CreateInstanceDialog({
 
         <div className="modal__actions">
           <button className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </button>
           <button
             className="btn btn-accent"
             onClick={submit}
             disabled={busy || !name.trim() || !version}
           >
-            {busy ? "Creating…" : "Create"}
+            {busy ? `${t("common.create")}…` : t("common.create")}
           </button>
         </div>
       </motion.div>

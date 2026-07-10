@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Plus, RefreshCw, Server as ServerIcon, Signal, Trash2, Users } from "lucide-react"
+import { Plus, RefreshCw, Signal, Trash2, Users } from "lucide-react"
 import type { ServerStatus } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"

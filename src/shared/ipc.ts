@@ -1,5 +1,5 @@
 import type {
-  Account, AppInfo, ArchiveResult, ContentProject, ContentSearchQuery, ContentSearchResult,
+  Account, AppInfo, AppLocale, ArchiveResult, ContentProject, ContentSearchQuery, ContentSearchResult,
   ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime,
   LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus,
   SystemMemoryInfo, VersionManifest, VersionSummary,
@@ -63,4 +63,4 @@ export interface OrdolithApi {
   }
 }
 
-export type { Account, AppInfo, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus, VersionManifest, VersionSummary }
+export type { Account, AppInfo, AppLocale, ArchiveResult, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus, SystemMemoryInfo, VersionManifest, VersionSummary }

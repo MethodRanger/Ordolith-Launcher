@@ -20,6 +20,7 @@ const EMPTY: ConfigShape = {
     locale: "en",
     defaultMinMemoryMb: 512,
     defaultMaxMemoryMb: 2048,
+    jvmArgs: "",
     closeToTray: false,
   },
   secrets: {},
