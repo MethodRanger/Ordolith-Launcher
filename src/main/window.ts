@@ -1,11 +1,14 @@
 import { join } from "node:path"
-import { BrowserWindow, shell } from "electron"
+import { app, BrowserWindow, shell } from "electron"
 
 /**
  * Creates the primary launcher window. The window stays hidden until the
  * renderer signals it is ready-to-show to avoid a white flash on startup.
  */
 export function createMainWindow(): BrowserWindow {
+  const icon = app.isPackaged
+    ? join(process.resourcesPath, "icons", "ordolith-256.png")
+    : join(__dirname, "../../build/icons/ordolith-256.png")
   const window = new BrowserWindow({
     width: 1100,
     height: 720,
@@ -15,6 +18,7 @@ export function createMainWindow(): BrowserWindow {
     autoHideMenuBar: true,
     backgroundColor: "#0b0d12",
     title: "Ordolith",
+    icon,
     // Frameless: the renderer draws its own Liquid Glass title bar + controls.
     frame: false,
     titleBarStyle: "hidden",

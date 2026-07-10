@@ -1,12 +1,13 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs"
 import { safeStorage } from "electron"
 import { paths } from "./paths.js"
-import type { Account, Instance, SavedServer } from "../shared/types.js"
+import type { Account, Instance, LauncherSettings, SavedServer } from "../shared/types.js"
 
 interface ConfigShape {
   accounts: Account[]
   instances: Instance[]
   servers: SavedServer[]
+  settings: LauncherSettings
   /** Per-account encrypted secrets (e.g. MS refresh token), base64. */
   secrets: Record<string, string>
 }
@@ -15,6 +16,12 @@ const EMPTY: ConfigShape = {
   accounts: [],
   instances: [],
   servers: [],
+  settings: {
+    locale: "en",
+    defaultMinMemoryMb: 512,
+    defaultMaxMemoryMb: 2048,
+    closeToTray: false,
+  },
   secrets: {},
 }
 
@@ -34,8 +41,25 @@ class Store {
       return this.cache
     }
     try {
-      const parsed = JSON.parse(readFileSync(paths.configFile, "utf8"))
-      this.cache = { ...structuredClone(EMPTY), ...parsed }
+      const parsed = JSON.parse(readFileSync(paths.configFile, "utf8")) as Partial<ConfigShape>
+      const base = structuredClone(EMPTY)
+      this.cache = {
+        ...base,
+        ...parsed,
+        settings: { ...base.settings, ...(parsed.settings ?? {}) },
+        instances: (parsed.instances ?? []).map((instance) => ({
+          ...instance,
+          loader: instance.loader ?? "vanilla",
+          settings: {
+            maxMemoryMb: 2048,
+            minMemoryMb: 512,
+            jvmArgs: "",
+            javaPath: "",
+            fullscreen: false,
+            ...instance.settings,
+          },
+        })),
+      }
     } catch {
       this.cache = structuredClone(EMPTY)
     }
@@ -78,6 +102,17 @@ class Store {
 
   saveServers(servers: SavedServer[]): void {
     this.read().servers = servers
+    this.write()
+  }
+
+  /* Launcher settings --------------------------------------------- */
+
+  getSettings(): LauncherSettings {
+    return this.read().settings
+  }
+
+  saveSettings(settings: LauncherSettings): void {
+    this.read().settings = settings
     this.write()
   }
 
