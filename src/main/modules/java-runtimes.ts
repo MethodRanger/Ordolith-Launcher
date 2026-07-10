@@ -1,7 +1,7 @@
 import { execFile, spawn } from "node:child_process"
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs"
 import { homedir, tmpdir } from "node:os"
-import { basename, dirname, join } from "node:path"
+import { dirname, join } from "node:path"
 import { promisify } from "node:util"
 import AdmZip from "adm-zip"
 import type { JavaRuntime } from "../../shared/types.js"

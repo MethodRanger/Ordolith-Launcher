@@ -102,7 +102,7 @@ export async function launchGame(ctx: LaunchContext, cb: LaunchCallbacks): Promi
     emit({ stage: "java", fraction: 1, detail: `Using ${javaBin}` })
 
     // 3. Assemble arguments.
-    const gameDir = paths.gameDir(instance.dirName)
+    const gameDir = instance.settings.gameDirectory || instance.gameDirectory || paths.gameDir(instance.dirName)
     const vars: Record<string, string> = {
       auth_player_name: account.username,
       version_name: instance.versionId,
@@ -129,6 +129,10 @@ export async function launchGame(ctx: LaunchContext, cb: LaunchCallbacks): Promi
     const jvmArgs = buildJvmArgs(detail, replace)
     const gameArgs = buildGameArgs(detail, replace)
 
+    if (instance.settings.fullscreen) gameArgs.push("--fullscreen")
+    if (instance.settings.width && instance.settings.height) {
+      gameArgs.push("--width", String(instance.settings.width), "--height", String(instance.settings.height))
+    }
     if (server) {
       // Works through 1.19; 1.20+ maps these onto quick-play internally.
       gameArgs.push("--server", server.host, "--port", String(server.port))

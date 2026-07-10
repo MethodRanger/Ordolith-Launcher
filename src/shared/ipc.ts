@@ -2,7 +2,7 @@ import type {
   Account, AppInfo, ArchiveResult, ContentProject, ContentSearchQuery, ContentSearchResult,
   ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime,
   LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus,
-  SystemMemoryInfo, VersionManifest,
+  SystemMemoryInfo, VersionManifest, VersionSummary,
 } from "./types"
 
 export const IPC = {
@@ -63,4 +63,4 @@ export interface OrdolithApi {
   }
 }
 
-export type { Account, AppInfo, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus, VersionManifest }
+export type { Account, AppInfo, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, GameLogLine, InstalledContent, Instance, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ProgressEvent, SavedServer, ServerStatus, VersionManifest, VersionSummary }

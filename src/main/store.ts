@@ -51,12 +51,12 @@ class Store {
           ...instance,
           loader: instance.loader ?? "vanilla",
           settings: {
-            maxMemoryMb: 2048,
-            minMemoryMb: 512,
-            jvmArgs: "",
-            javaPath: "",
-            fullscreen: false,
             ...instance.settings,
+            maxMemoryMb: instance.settings?.maxMemoryMb ?? 2048,
+            minMemoryMb: instance.settings?.minMemoryMb ?? 512,
+            jvmArgs: instance.settings?.jvmArgs ?? "",
+            javaPath: instance.settings?.javaPath ?? "",
+            fullscreen: instance.settings?.fullscreen ?? false,
           },
         })),
       }
