@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { Download, Loader2, Search } from "lucide-react"
 import type { ModpackProject } from "@shared/ipc"
 import { useI18n } from "../i18n"
+import { useStore } from "../store/useStore"
 
 /**
  * Modrinth/CurseForge-style modpack browser. Searching queries both providers
@@ -15,6 +16,7 @@ export function ModpackBrowser({
   onInstalled?: (instanceId: string) => void
 }): React.JSX.Element {
   const { t } = useI18n()
+  const pushToast = useStore((s) => s.pushToast)
   const [query, setQuery] = useState("")
   const [projects, setProjects] = useState<ModpackProject[]>([])
   const [loading, setLoading] = useState(false)
@@ -47,6 +49,9 @@ export function ModpackBrowser({
     try {
       const instance = await window.ordolith.modpacks.install(project)
       onInstalled?.(instance.id)
+      pushToast(t("mods.modpackInstalled", { name: project.title }), "success")
+    } catch {
+      pushToast(t("mods.modpackFailed", { name: project.title }), "error")
     } finally {
       disposeRef.current?.()
       disposeRef.current = null

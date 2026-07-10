@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Clock, Download, FolderOpen, Play, Plus, Trash2, Upload } from "lucide-react"
-import type { ModLoader } from "@shared/ipc"
+import { Boxes, Clock, Download, FolderOpen, Package, Play, Plus, Trash2, Upload } from "lucide-react"
+import type { ContentProject, ContentType, Instance, ModLoader } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
+import { ContentBrowser } from "../components/ContentBrowser"
+import { ModpackBrowser } from "../components/ModpackBrowser"
 
 const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt", "neoforge"]
 const COLORS = ["#4cc8ff", "#41d1a7", "#ffb454", "#ff6b6b", "#a78bfa", "#f472b6"]
@@ -140,6 +142,9 @@ export function InstancesScreen(): React.JSX.Element {
   )
 }
 
+type WizardMode = "custom" | "modpack"
+type WizardStep = "basics" | "content"
+
 function CreateInstanceDialog({
   versions,
   defaultVersion,
@@ -152,29 +157,52 @@ function CreateInstanceDialog({
   onCreated: () => void
 }): React.JSX.Element {
   const { t } = useI18n()
+  const pushToast = useStore((s) => s.pushToast)
+  const [mode, setMode] = useState<WizardMode>("custom")
+  const [step, setStep] = useState<WizardStep>("basics")
   const [name, setName] = useState("")
   const [loader, setLoader] = useState<ModLoader>("vanilla")
   const [version, setVersion] = useState(defaultVersion)
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [color, setColor] = useState(COLORS[0])
   const [busy, setBusy] = useState(false)
+  /** Instance created at the end of step 1, used to install content in step 2. */
+  const [created, setCreated] = useState<Instance | null>(null)
+  const [pending, setPending] = useState(0)
 
   const list = useMemo(
     () => versions.filter((v) => (showSnapshots ? true : v.type === "release")),
     [versions, showSnapshots],
   )
 
-  async function submit(): Promise<void> {
+  async function createAndAdvance(): Promise<void> {
     const trimmed = name.trim()
     if (!trimmed || !version) return
     setBusy(true)
-    await window.ordolith.instances.create({
-      name: trimmed,
-      versionId: version,
-      loader,
-      iconColor: color,
-    })
-    onCreated()
+    try {
+      const instance = await window.ordolith.instances.create({
+        name: trimmed,
+        versionId: version,
+        loader,
+        iconColor: color,
+      })
+      setCreated(instance)
+      setStep("content")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function installPick(type: ContentType, project: ContentProject): Promise<boolean> {
+    if (!created) return false
+    try {
+      await window.ordolith.content.install(created.id, type, project)
+      setPending((n) => n + 1)
+      return true
+    } catch {
+      pushToast(t("mods.installFailed", { name: project.title }), "error")
+      return false
+    }
   }
 
   return (
@@ -186,96 +214,171 @@ function CreateInstanceDialog({
       onClick={onClose}
     >
       <motion.div
-        className="modal glass glass-strong"
+        className={`modal glass glass-strong ${step === "content" ? "modal--wide" : ""}`}
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="modal__title">{t("instances.newInstance")}</h3>
-
-        <div className="field">
-          <label htmlFor="inst-name">{t("instances.name")}</label>
-          <input
-            id="inst-name"
-            className="input"
-            placeholder="My world"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoFocus
-          />
+        <div className="modal__head">
+          <h3 className="modal__title">{t("wizard.title")}</h3>
+          <div className="wizard__steps">
+            <span className={step === "basics" ? "is-active" : ""}>1. {t("wizard.stepBasics")}</span>
+            <span className={step === "content" ? "is-active" : ""}>2. {t("wizard.stepContent")}</span>
+          </div>
         </div>
 
-        <div className="field">
-          <label>{t("instances.loader")}</label>
-          <div className="segmented">
-            {LOADERS.map((l) => (
+        {step === "basics" ? (
+          <>
+            <div className="wizard__modes">
               <button
-                key={l}
-                className={`segmented__opt ${loader === l ? "is-active" : ""}`}
-                onClick={() => setLoader(l)}
+                className={`wizard__mode ${mode === "custom" ? "is-active" : ""}`}
+                onClick={() => setMode("custom")}
               >
-                {l[0].toUpperCase() + l.slice(1)}
+                <Package size={20} />
+                <span className="wizard__mode-title">{t("wizard.modeCustom")}</span>
+                <span className="wizard__mode-desc">{t("wizard.modeCustomDesc")}</span>
               </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="field">
-          <label htmlFor="inst-version">
-            {t("instances.version")}
-            <button
-              className="link-toggle"
-              onClick={() => setShowSnapshots((v) => !v)}
-              type="button"
-            >
-              {showSnapshots ? t("instances.hideSnapshots") : t("instances.showSnapshots")}
-            </button>
-          </label>
-          <select
-            id="inst-version"
-            className="input"
-            value={version}
-            onChange={(e) => setVersion(e.target.value)}
-          >
-            {list.length === 0 && <option value="">{t("common.loading")}…</option>}
-            {list.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.id}
-                {v.type !== "release" ? ` (${v.type})` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="field">
-          <label>{t("instances.iconColor")}</label>
-          <div className="swatches">
-            {COLORS.map((c) => (
               <button
-                key={c}
-                className={`swatch ${color === c ? "is-active" : ""}`}
-                style={{ background: c }}
-                aria-label={`Color ${c}`}
-                onClick={() => setColor(c)}
-              />
-            ))}
-          </div>
-        </div>
+                className={`wizard__mode ${mode === "modpack" ? "is-active" : ""}`}
+                onClick={() => setMode("modpack")}
+              >
+                <Boxes size={20} />
+                <span className="wizard__mode-title">{t("wizard.modeModpack")}</span>
+                <span className="wizard__mode-desc">{t("wizard.modeModpackDesc")}</span>
+              </button>
+            </div>
 
-        <div className="modal__actions">
-          <button className="btn btn-ghost" onClick={onClose}>
-            {t("common.cancel")}
-          </button>
-          <button
-            className="btn btn-accent"
-            onClick={submit}
-            disabled={busy || !name.trim() || !version}
-          >
-            {busy ? `${t("common.create")}…` : t("common.create")}
-          </button>
-        </div>
+            {mode === "modpack" ? (
+              <>
+                <ModpackBrowser
+                  onInstalled={() => {
+                    onCreated()
+                  }}
+                />
+                <div className="modal__actions">
+                  <button className="btn btn-ghost" onClick={onClose}>
+                    {t("common.cancel")}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="field">
+                  <label htmlFor="inst-name">{t("instances.name")}</label>
+                  <input
+                    id="inst-name"
+                    className="input"
+                    placeholder="My world"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="field">
+                  <label>{t("instances.loader")}</label>
+                  <div className="segmented">
+                    {LOADERS.map((l) => (
+                      <button
+                        key={l}
+                        className={`segmented__opt ${loader === l ? "is-active" : ""}`}
+                        onClick={() => setLoader(l)}
+                      >
+                        {l[0].toUpperCase() + l.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label htmlFor="inst-version">
+                    {t("instances.version")}
+                    <button
+                      className="link-toggle"
+                      onClick={() => setShowSnapshots((v) => !v)}
+                      type="button"
+                    >
+                      {showSnapshots ? t("instances.hideSnapshots") : t("instances.showSnapshots")}
+                    </button>
+                  </label>
+                  <select
+                    id="inst-version"
+                    className="input"
+                    value={version}
+                    onChange={(e) => setVersion(e.target.value)}
+                  >
+                    {list.length === 0 && <option value="">{t("common.loading")}…</option>}
+                    {list.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.id}
+                        {v.type !== "release" ? ` (${v.type})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="field">
+                  <label>{t("instances.iconColor")}</label>
+                  <div className="swatches">
+                    {COLORS.map((c) => (
+                      <button
+                        key={c}
+                        className={`swatch ${color === c ? "is-active" : ""}`}
+                        style={{ background: c }}
+                        aria-label={`Color ${c}`}
+                        onClick={() => setColor(c)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="modal__actions">
+                  <button className="btn btn-ghost" onClick={onClose}>
+                    {t("common.cancel")}
+                  </button>
+                  <button
+                    className="btn btn-accent"
+                    onClick={createAndAdvance}
+                    disabled={busy || !name.trim() || !version}
+                  >
+                    {busy ? `${t("wizard.creating")}` : t("wizard.next")}
+                  </button>
+                </div>
+              </>
+            )}
+          </>
+        ) : (
+          created && (
+            <>
+              <div className="wizard__content-head">
+                <div>
+                  <h4>{t("wizard.addMods")}</h4>
+                  <p className="panel__desc">{t("wizard.contentHint")}</p>
+                </div>
+                {pending > 0 && <span className="badge">{t("wizard.pending", { n: pending })}</span>}
+              </div>
+              <div className="wizard__browser">
+                <ContentBrowser
+                  instanceId={created.id}
+                  loader={created.loader}
+                  gameVersion={created.versionId}
+                  onInstall={installPick}
+                  compact
+                />
+              </div>
+              <div className="modal__actions">
+                <button className="btn btn-ghost" onClick={onCreated}>
+                  {t("wizard.skip")}
+                </button>
+                <button className="btn btn-accent" onClick={onCreated}>
+                  {t("wizard.finish")}
+                </button>
+              </div>
+            </>
+          )
+        )}
       </motion.div>
     </motion.div>
   )
