@@ -12,7 +12,7 @@ export function TitleBar({ platform }: { platform: NodeJS.Platform }): React.JSX
   return (
     <header className="titlebar drag" style={{ paddingLeft: isMac ? 84 : 16 }}>
       <div className="titlebar__brand">
-        <span className="titlebar__logo" aria-hidden />
+        <img className="titlebar__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
         <span className="titlebar__name">Ordolith</span>
       </div>
 

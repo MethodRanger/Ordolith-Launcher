@@ -59,12 +59,132 @@ export interface InstanceSettings {
   jvmArgs: string
   /** Absolute path to a specific Java binary, or empty to auto-detect. */
   javaPath: string
-  /** Optional resolution overrides. */
+  /** Window and display options. */
   width?: number
   height?: number
+  fullscreen?: boolean
+  /** Optional isolated game directory override. */
+  gameDirectory?: string
+  /** Optional managed icon path. */
+  iconPath?: string
+  /** Optional GC tuning preset. */
+  gcPreset?: "default" | "g1gc" | "zgc" | "shenandoah"
 }
 
-export type ModLoader = "vanilla" | "fabric" | "forge" | "quilt"
+export type ModLoader = "vanilla" | "fabric" | "forge" | "quilt" | "neoforge"
+export type AppLocale = "ru" | "en" | "es" | "zh"
+export type ContentType = "mod" | "resourcepack" | "shader"
+export type ContentProvider = "modrinth" | "curseforge"
+
+export interface WindowSettings {
+  width: number
+  height: number
+  fullscreen: boolean
+}
+
+export interface JavaRuntime {
+  id: string
+  path: string
+  version: string
+  major: number
+  vendor: string
+  managed: boolean
+  compatible: boolean
+}
+
+export interface ContentSearchQuery {
+  query: string
+  instanceId: string
+  type: ContentType
+  category?: string
+  sort?: "relevance" | "downloads" | "updated"
+  offset?: number
+  limit?: number
+}
+
+export interface ContentProject {
+  id: string
+  provider: ContentProvider
+  slug: string
+  title: string
+  description: string
+  iconUrl?: string
+  author: string
+  downloads: number
+  updatedAt: string
+  types: ContentType[]
+  loaders: ModLoader[]
+  gameVersions: string[]
+  categories: string[]
+}
+
+export interface ContentDependency {
+  projectId: string
+  provider: ContentProvider
+  required: boolean
+  title?: string
+}
+
+export interface ContentFile {
+  id: string
+  projectId: string
+  provider: ContentProvider
+  name: string
+  fileName: string
+  downloadUrl: string
+  size: number
+  hashes: { sha1?: string; sha512?: string; murmur2?: string }
+  gameVersions: string[]
+  loaders: ModLoader[]
+  dependencies: ContentDependency[]
+}
+
+export interface InstalledContent {
+  id: string
+  projectId: string
+  provider: ContentProvider
+  instanceId: string
+  type: ContentType
+  title: string
+  fileName: string
+  versionName: string
+  enabled: boolean
+  installedAt: number
+  updateAvailable?: boolean
+}
+
+export interface ContentSearchResult {
+  projects: ContentProject[]
+  total: number
+  providerHealth: Record<ContentProvider, "online" | "unavailable" | "error" | "cached">
+}
+
+export interface LauncherSettings {
+  locale: AppLocale
+  defaultMinMemoryMb: number
+  defaultMaxMemoryMb: number
+  closeToTray: boolean
+}
+
+export interface SystemMemoryInfo {
+  totalMb: number
+  freeMb: number
+}
+
+export interface ArchiveResult {
+  ok: boolean
+  path?: string
+  instanceId?: string
+  error?: string
+}
+
+export interface ChangelogEntry {
+  version: string
+  releaseDate: string
+  titleKey: string
+  summaryKey: string
+  highlights: string[]
+}
 
 export interface Instance {
   id: string
@@ -77,6 +197,8 @@ export interface Instance {
   createdAt: number
   lastPlayed?: number
   iconColor: string
+  iconPath?: string
+  gameDirectory?: string
 }
 
 /* ------------------------------------------------------------------ */
@@ -97,6 +219,7 @@ export interface ServerStatus {
   playersMax?: number
   version?: string
   latencyMs?: number
+  favicon?: string
   error?: string
 }
 

@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron"
 import { createMainWindow } from "./window.js"
 import { registerIpcHandlers } from "./ipc-handlers.js"
 import { paths } from "./paths.js"
+import { createTray } from "./tray.js"
 
 // A single app-wide instance lock prevents multiple launcher windows from
 // fighting over the same game/instance directories.
@@ -23,6 +24,7 @@ if (!gotLock) {
     paths.ensureBase()
     registerIpcHandlers()
     mainWindow = createMainWindow()
+    createTray(() => mainWindow)
 
     app.on("activate", () => {
       // On macOS re-create a window when the dock icon is clicked and there

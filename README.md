@@ -4,22 +4,34 @@ Ordolith is an open-source cross-platform launcher for Minecraft: Java Edition,
 written with a focus on transparency and user control over their data.
 
 ## Features
-- 🔑 Microsoft login (official OAuth2-flow) and offline mode
-- 📦 Automatic download of versions, libraries, and assets from the official Mojang manifest
-- 🧩 Support for modloaders (Fabric, Forge, Quilt)
-- 🗂️ Multiple isolated instances with separate settings and mods
-- ⚡ Minimal resource consumption, no built-in browser
+- 🔑 Microsoft login (official OAuth2-flow) and offline mode with optional custom avatars
+- 📦 Automatic download of versions, libraries, assets from official Mojang manifest
+- 🧩 Support for modloaders: Fabric, Forge, Quilt, NeoForge
+- 🎨 Mod browser with Modrinth + optional CurseForge (API key), install/update/disable mods, resource packs, shaders with dependency resolution
+- 🗂️ Multiple isolated instances with independent settings, mods, custom directories, and icons
+- ☕ Java runtime discovery + automatic Temurin download from Adoptium for any Minecraft version
+- 📤 Instance import/export (safe ZIP archives with version metadata)
+- 🌐 Server list with live status ping and favicon display
+- 🎮 Launch options: fullscreen, window size, JVM tuning presets, custom JVM flags, custom game directory
+- 🌍 Localization: RU, EN, ES, ZH with built-in changelogs for 1.21+ updates
+- 🖼️ "Liquid Glass" design system: dark translucent UI, spring-motion animations, custom frameless window, system tray, boot splash
+- ⚡ Minimal resource consumption, no built-in browser, single-process lock
 
 ## Tech stack
-Desktop app built with **Electron** + **electron-vite** + **React** + **TypeScript**.
+Desktop app built with **Electron 34** + **electron-vite** + **React 19** + **TypeScript 5.7**.
 
-- **Main process** (`src/main`) — window lifecycle, IPC handlers, single-instance lock,
-  and all privileged services (`src/main/modules`): the Mojang version manifest,
-  file downloader with SHA-1 verification, Java detection, the launch pipeline,
-  Microsoft OAuth + offline auth, and server-list ping.
-- **Preload bridge** (`src/preload`) — the only, explicitly typed surface exposed to
-  the renderer (`window.ordolith`), guarded by `contextIsolation`.
-- **Renderer** (`src/renderer`) — the React UI (the "Liquid Glass" design system).
+- **Main process** (`src/main`) — window lifecycle, IPC handlers, single-instance lock, tray, and all privileged services (`src/main/modules`):
+  - Mojang version manifest parsing
+  - File downloader with SHA-1 verification (client, libraries, OS-aware natives, asset objects)
+  - Java detection + Temurin download from Adoptium with extraction and validation
+  - Launch pipeline: classpath assembly, JVM/game arg resolution (modern + legacy), JVM spawn, log streaming, stop
+  - Microsoft OAuth chain (MS → Xbox Live → XSTS → Minecraft) + offline UUID generation
+  - Refresh token encryption with Electron's OS-backed `safeStorage`
+  - Modrinth + optional CurseForge content search, installation with dependency walking, enable/disable/remove, update detection
+  - Instance ZIP import/export with validation
+  - Server-list ping (SLP protocol) + favicon extraction
+- **Preload bridge** (`src/preload`) — the only, explicitly typed surface exposed to the renderer (`window.ordolith`), guarded by `contextIsolation`.
+- **Renderer** (`src/renderer`) — the React UI (the "Liquid Glass" design system), Zustand store, Framer Motion animations, i18n with RU/EN/ES/ZH support.
 - **Shared** (`src/shared`) — IPC channel names and domain types shared across processes.
 
 ### Where data lives

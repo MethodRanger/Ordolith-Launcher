@@ -8,7 +8,7 @@ import type {
   VersionSummary,
 } from "@shared/ipc"
 
-export type View = "play" | "instances" | "servers" | "settings"
+export type View = "play" | "instances" | "mods" | "servers" | "news" | "settings"
 
 interface LaunchState {
   progress: ProgressEvent | null

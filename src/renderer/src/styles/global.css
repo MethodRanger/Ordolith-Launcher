@@ -263,13 +263,10 @@ button {
   align-items: center;
   gap: 10px;
 }
-.titlebar__logo,
-.login__logo {
+.titlebar__logo {
   width: 22px;
   height: 22px;
   border-radius: 7px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  box-shadow: 0 0 18px rgba(76, 200, 255, 0.5);
 }
 .titlebar__name {
   font-weight: 600;

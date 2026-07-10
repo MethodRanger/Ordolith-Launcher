@@ -10,12 +10,17 @@ files:
   - out/**/*
   - package.json
 
+extraResources:
+  - from: build/icons
+    to: icons
+
 # Bundle native/runtime node deps (e.g. adm-zip) with the app.
 asar: true
 npmRebuild: false
 
 # ---- Windows ------------------------------------------------------------
 win:
+  icon: build/icons/ordolith.ico
   target:
     - target: nsis
       arch:
@@ -31,6 +36,7 @@ nsis:
 
 # ---- macOS --------------------------------------------------------------
 mac:
+  icon: build/icons/ordolith.icns
   category: public.app-category.games
   target:
     - target: dmg
@@ -44,6 +50,7 @@ mac:
 
 # ---- Linux --------------------------------------------------------------
 linux:
+  icon: build/icons/ordolith-512.png
   category: Game
   target:
     - AppImage
