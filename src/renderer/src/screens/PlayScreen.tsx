@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { Play, Square, Terminal, Trash2 } from "lucide-react"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
+import logo from "../assets/logo"
 
 export function PlayScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
@@ -47,7 +48,7 @@ export function PlayScreen(): React.JSX.Element {
           <p>{t("play.getStarted")}</p>
         </div>
         <div className="empty glass">
-          <img className="empty__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+          <img className="empty__logo" src={logo} alt="" aria-hidden />
           <p>{t("instances.empty")}</p>
           <button className="btn btn-accent" onClick={() => setView("instances")}>
             {t("instances.newInstance")}

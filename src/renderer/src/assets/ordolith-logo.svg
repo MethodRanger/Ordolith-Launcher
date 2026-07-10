@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Ordolith</title>
+  <desc id="desc">A luminous isometric cube on a dark rounded tile</desc>
+  <defs>
+    <linearGradient id="tile" x1="16" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18363A"/>
+      <stop offset=".52" stop-color="#132333"/>
+      <stop offset="1" stop-color="#0B101C"/>
+    </linearGradient>
+    <linearGradient id="top" x1="38" y1="42" x2="88" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7CE0D3"/>
+      <stop offset="1" stop-color="#76A9F4"/>
+    </linearGradient>
+    <linearGradient id="left" x1="38" y1="51" x2="64" y2="91" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#59C4DB"/>
+      <stop offset="1" stop-color="#4E72DD"/>
+    </linearGradient>
+    <linearGradient id="right" x1="64" y1="55" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#679BEF"/>
+      <stop offset="1" stop-color="#7A61DF"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feColorMatrix in="blur" values="0 0 0 0 0.36 0 0 0 0 0.66 0 0 0 0 0.94 0 0 0 .34 0"/>
+    </filter>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#tile)"/>
+  <circle cx="98" cy="31" r="23" fill="#5B9DF0" opacity=".045"/>
+  <circle cx="28" cy="99" r="22" fill="#5B9DF0" opacity=".045"/>
+  <path d="M64 38 91 52.5 64 68 37 52.5 64 38Z" fill="#5B9DF0" opacity=".34" filter="url(#glow)"/>
+  <path d="M64 38 91 52.5 64 68 37 52.5 64 38Z" fill="url(#top)"/>
+  <path d="M37 52.5 64 68v31L37 83.5v-31Z" fill="url(#left)"/>
+  <path d="M91 52.5 64 68v31l27-15.5v-31Z" fill="url(#right)"/>
+  <path d="M38.5 52.4 64 66.9l25.5-14.5" fill="none" stroke="#D5FFFA" stroke-opacity=".36" stroke-width="1"/>
+</svg>

@@ -76,6 +76,43 @@ export type AppLocale = "ru" | "en" | "es" | "zh"
 export type ContentType = "mod" | "resourcepack" | "shader"
 export type ContentProvider = "modrinth" | "curseforge"
 
+/** A discoverable modpack from a provider's catalog. */
+export interface ModpackProject {
+  id: string
+  provider: ContentProvider
+  slug: string
+  title: string
+  description: string
+  iconUrl?: string
+  author: string
+  downloads: number
+  updatedAt: string
+  loaders: ModLoader[]
+  gameVersions: string[]
+  categories: string[]
+}
+
+export interface ModpackSearchQuery {
+  query: string
+  loader?: ModLoader
+  gameVersion?: string
+  sort?: "relevance" | "downloads" | "updated"
+  offset?: number
+  limit?: number
+}
+
+export interface ModpackSearchResult {
+  projects: ModpackProject[]
+  total: number
+  providerHealth: Record<ContentProvider, "online" | "unavailable" | "error" | "cached">
+}
+
+/** Progress emitted while a modpack is being installed. */
+export interface ModpackInstallProgress {
+  fraction: number
+  detail: string
+}
+
 export interface WindowSettings {
   width: number
   height: number

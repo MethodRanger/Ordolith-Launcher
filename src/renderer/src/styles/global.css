@@ -385,6 +385,8 @@ button {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
 }
 .sidebar__account-meta {
   display: flex;
@@ -937,6 +939,8 @@ button {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
 }
 .account-row__meta {
   flex: 1;

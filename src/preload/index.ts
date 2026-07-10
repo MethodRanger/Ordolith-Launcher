@@ -33,6 +33,15 @@ const api: OrdolithApi = {
     toggle: (instanceId, type, fileName, enabled) => ipcRenderer.invoke(IPC.content.toggle, instanceId, type, fileName, enabled),
     remove: (instanceId, type, fileName) => ipcRenderer.invoke(IPC.content.remove, instanceId, type, fileName),
   },
+  modpacks: {
+    search: (query) => ipcRenderer.invoke(IPC.modpacks.search, query),
+    install: (project) => ipcRenderer.invoke(IPC.modpacks.install, project),
+    onProgress: (cb) => {
+      const listener = (_e: IpcRendererEvent, progress: { fraction: number; detail: string }): void => cb(progress)
+      ipcRenderer.on(IPC.modpacks.onProgress, listener)
+      return () => ipcRenderer.removeListener(IPC.modpacks.onProgress, listener)
+    },
+  },
   java: {
     discover: () => ipcRenderer.invoke(IPC.java.discover), download: (version) => ipcRenderer.invoke(IPC.java.download, version),
     onProgress: (cb) => {

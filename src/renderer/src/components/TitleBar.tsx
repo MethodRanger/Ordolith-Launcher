@@ -1,4 +1,5 @@
 import { Minus, Square, X } from "lucide-react"
+import logo from "../assets/logo"
 
 /**
  * Custom frameless title bar. The whole strip is a drag region except the
@@ -12,7 +13,7 @@ export function TitleBar({ platform }: { platform: NodeJS.Platform }): React.JSX
   return (
     <header className="titlebar drag" style={{ paddingLeft: isMac ? 84 : 16 }}>
       <div className="titlebar__brand">
-        <img className="titlebar__logo" src="/ordolith-logo.svg" alt="" aria-hidden />
+        <img className="titlebar__logo" src={logo} alt="" aria-hidden />
         <span className="titlebar__name">Ordolith</span>
       </div>
 

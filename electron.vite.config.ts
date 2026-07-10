@@ -24,6 +24,9 @@ export default defineConfig({
     },
   },
   renderer: {
+    // Relative base so bundled asset URLs resolve under the file:// protocol
+    // used by the packaged app (absolute "/foo" would hit the filesystem root).
+    base: "./",
     resolve: {
       alias: {
         "@renderer": resolve(__dirname, "src/renderer/src"),
