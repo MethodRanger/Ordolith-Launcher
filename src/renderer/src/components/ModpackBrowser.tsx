@@ -20,7 +20,6 @@ export function ModpackBrowser({
   const [query, setQuery] = useState("")
   const [projects, setProjects] = useState<ModpackProject[]>([])
   const [loading, setLoading] = useState(false)
-  const [curseNeedsKey, setCurseNeedsKey] = useState(false)
   const [installing, setInstalling] = useState<string | null>(null)
   const [progress, setProgress] = useState<{ fraction: number; detail: string } | null>(null)
   const disposeRef = useRef<(() => void) | null>(null)
@@ -30,7 +29,6 @@ export function ModpackBrowser({
     try {
       const result = await window.ordolith.modpacks.search({ query, sort: "downloads", limit: 24 })
       setProjects(result.projects)
-      setCurseNeedsKey(result.providerHealth.curseforge === "unavailable")
     } finally {
       setLoading(false)
     }
@@ -78,8 +76,6 @@ export function ModpackBrowser({
         </button>
       </div>
 
-      <p className="panel__desc">{curseNeedsKey ? t("mods.healthModrinth") : t("mods.healthBoth")}</p>
-
       {loading ? (
         <div className="grid">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -117,7 +113,7 @@ export function ModpackBrowser({
                   {t("mods.downloads", { count: project.downloads.toLocaleString() })}
                 </p>
                 {busy && progress ? (
-                  <div className="progress">
+                  <div className="progress content-card__btn">
                     <div className="progress__track">
                       <div className="progress__fill" style={{ width: `${Math.round(progress.fraction * 100)}%` }} />
                     </div>
@@ -125,7 +121,7 @@ export function ModpackBrowser({
                   </div>
                 ) : (
                   <button
-                    className="btn btn-accent"
+                    className="btn btn-accent content-card__btn"
                     disabled={!!installing}
                     onClick={() => install(project)}
                   >

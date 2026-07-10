@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 import { Boxes, Gamepad2, Newspaper, PackageSearch, Server, Settings } from "lucide-react"
-import { activeAccount, useStore, type View } from "../store/useStore"
+import { accountAvatar, activeAccount, useStore, type View } from "../store/useStore"
 import { useI18n } from "../i18n"
 
 const NAV: { id: View; key: string; icon: React.ComponentType<{ size?: number }> }[] = [
@@ -49,11 +49,11 @@ export function Sidebar(): React.JSX.Element {
         <span
           className="sidebar__avatar"
           style={{
-            backgroundImage: account?.avatarUrl ? `url(${account.avatarUrl})` : undefined,
+            backgroundImage: accountAvatar(account) ? `url(${accountAvatar(account)})` : undefined,
           }}
           aria-hidden
         >
-          {!account?.avatarUrl && (account?.username?.[0]?.toUpperCase() ?? "?")}
+          {!accountAvatar(account) && (account?.username?.[0]?.toUpperCase() ?? "?")}
         </span>
         <span className="sidebar__account-meta">
           <span className="sidebar__account-name">{account?.username ?? t("login.modeOffline")}</span>

@@ -32,6 +32,8 @@ export function loginOffline(username: string): Account {
     username: trimmed,
     uuid: offlineUuid(trimmed),
     active: false,
+    // Render a real Minecraft head (Steve/Alex fallback for unknown names).
+    avatarUrl: `https://mc-heads.net/avatar/${encodeURIComponent(trimmed)}/64`,
   }
 
   const accounts = store.getAccounts().filter((a) => !(a.kind === "offline" && a.username === trimmed))

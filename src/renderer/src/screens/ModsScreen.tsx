@@ -86,6 +86,32 @@ export function ModsScreen(): React.JSX.Element {
             await refreshInstances()
           }}
         />
+      ) : tab === "browse" ? (
+        <>
+          {instances.length > 0 && (
+            <div className="toolbar glass">
+              <span className="toolbar__label">{t("mods.installTarget")}</span>
+              <select
+                className="input"
+                value={instance?.id ?? ""}
+                onChange={(e) => selectInstance(e.target.value)}
+                aria-label={t("mods.instance")}
+              >
+                {instances.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name} · {item.versionId} · {item.loader}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <ContentBrowser
+            instanceId={instance?.id}
+            loader={instance?.loader ?? "fabric"}
+            gameVersion={instance?.versionId ?? ""}
+            onInstall={installProject}
+          />
+        </>
       ) : !instance ? (
         <div className="empty glass">
           <PackageOpen size={28} />
@@ -108,68 +134,57 @@ export function ModsScreen(): React.JSX.Element {
             </select>
           </div>
 
-          {tab === "browse" ? (
-            <ContentBrowser
-              instanceId={instance.id}
-              loader={instance.loader}
-              gameVersion={instance.versionId}
-              onInstall={installProject}
-            />
-          ) : (
-            <>
-              <div className="segmented">
-                {TYPES.map((item) => (
-                  <button
-                    key={item}
-                    className={`segmented__opt ${type === item ? "is-active" : ""}`}
-                    onClick={() => setType(item)}
-                  >
-                    {t(TYPE_KEY[item])}
-                  </button>
-                ))}
+          <div className="segmented">
+            {TYPES.map((item) => (
+              <button
+                key={item}
+                className={`segmented__opt ${type === item ? "is-active" : ""}`}
+                onClick={() => setType(item)}
+              >
+                {t(TYPE_KEY[item])}
+              </button>
+            ))}
+          </div>
+          <div className="server-list">
+            {installed.length === 0 ? (
+              <div className="empty glass">
+                <p>{t("mods.noInstalled")}</p>
               </div>
-              <div className="server-list">
-                {installed.length === 0 ? (
-                  <div className="empty glass">
-                    <p>{t("mods.noInstalled")}</p>
+            ) : (
+              installed.map((item) => (
+                <div className="server glass" key={item.id}>
+                  <PackageOpen size={22} />
+                  <div className="server__info">
+                    <h3>{item.title}</h3>
+                    <p className="server__addr">
+                      {item.versionName} · {item.provider}
+                    </p>
                   </div>
-                ) : (
-                  installed.map((item) => (
-                    <div className="server glass" key={item.id}>
-                      <PackageOpen size={22} />
-                      <div className="server__info">
-                        <h3>{item.title}</h3>
-                        <p className="server__addr">
-                          {item.versionName} · {item.provider}
-                        </p>
-                      </div>
-                      <button
-                        className="btn btn-icon"
-                        aria-label={item.enabled ? t("mods.disable") : t("mods.enable")}
-                        onClick={async () => {
-                          await window.ordolith.content.toggle(instance.id, type, item.fileName, !item.enabled)
-                          await loadInstalled()
-                        }}
-                      >
-                        {item.enabled ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
-                      </button>
-                      <button
-                        className="btn btn-icon"
-                        aria-label={t("common.remove")}
-                        onClick={async () => {
-                          await window.ordolith.content.remove(instance.id, type, item.fileName)
-                          await loadInstalled()
-                          pushToast(t("mods.removed", { name: item.title }), "info")
-                        }}
-                      >
-                        <Trash2 size={17} />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </>
-          )}
+                  <button
+                    className="btn btn-icon"
+                    aria-label={item.enabled ? t("mods.disable") : t("mods.enable")}
+                    onClick={async () => {
+                      await window.ordolith.content.toggle(instance.id, type, item.fileName, !item.enabled)
+                      await loadInstalled()
+                    }}
+                  >
+                    {item.enabled ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
+                  </button>
+                  <button
+                    className="btn btn-icon"
+                    aria-label={t("common.remove")}
+                    onClick={async () => {
+                      await window.ordolith.content.remove(instance.id, type, item.fileName)
+                      await loadInstalled()
+                      pushToast(t("mods.removed", { name: item.title }), "info")
+                    }}
+                  >
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </>
       )}
     </div>

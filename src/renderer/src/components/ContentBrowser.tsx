@@ -11,7 +11,8 @@ const TYPE_KEYS: { id: ContentType; key: string }[] = [
 ]
 
 export interface ContentBrowserProps {
-  instanceId: string
+  /** Target instance for install + facet scoping. Optional when just browsing. */
+  instanceId?: string
   loader: string
   gameVersion: string
   /** Install a picked project. Return true on success. */
@@ -49,6 +50,8 @@ export function ContentBrowser({
         query,
         type,
         instanceId,
+        loader: loader as never,
+        gameVersion,
         limit: 40,
       })
       setCards(result.projects)
@@ -57,7 +60,7 @@ export function ContentBrowser({
     } finally {
       setLoading(false)
     }
-  }, [query, type, instanceId])
+  }, [query, type, instanceId, loader, gameVersion])
 
   useEffect(() => {
     void search()
@@ -94,7 +97,7 @@ export function ContentBrowser({
           <input
             className="input"
             value={query}
-            placeholder={t("mods.searchPlaceholder", { loader, version: gameVersion })}
+            placeholder={t("mods.searchPlaceholder")}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) void search()
@@ -120,7 +123,7 @@ export function ContentBrowser({
             return (
               <motion.article
                 key={`${project.provider}-${project.id}`}
-                className="card glass"
+                className="card glass content-card"
                 whileHover={{ y: -3 }}
               >
                 <div className="card__top">
@@ -134,13 +137,13 @@ export function ContentBrowser({
                     <span className="badge badge-muted">{project.provider}</span>
                   </div>
                 </div>
-                <p className="card__meta">{project.description}</p>
+                <p className="card__meta content-card__desc">{project.description}</p>
                 <p className="card__sub">
                   {t("mods.by", { author: project.author })} ·{" "}
                   {t("mods.downloads", { count: project.downloads.toLocaleString() })}
                 </p>
                 <button
-                  className={`btn ${installed ? "btn-ghost" : "btn-accent"}`}
+                  className={`btn content-card__btn ${installed ? "btn-ghost" : "btn-accent"}`}
                   disabled={busy === project.id || installed}
                   onClick={() => install(project)}
                 >

@@ -89,13 +89,12 @@ export const zh: Dictionary = {
     typeMod: "模组",
     typeResourcepack: "资源包",
     typeShader: "光影",
-    healthModrinth: "Modrinth 在线 · CurseForge 需要 API 密钥",
-    healthBoth: "Modrinth + CurseForge 在线",
     instance: "实例",
+    installTarget: "安装到",
     browse: "浏览",
     installedTab: "已安装",
-    needInstance: "请先创建实例再浏览内容。",
-    searchPlaceholder: "搜索 {loader} {version} 的内容",
+    needInstance: "请先创建实例以管理已安装内容。",
+    searchPlaceholder: "搜索模组、资源包与光影",
     search: "搜索",
     noResults: "未找到结果。请尝试其他关键词。",
     by: "作者：{author}",
@@ -148,6 +147,12 @@ export const zh: Dictionary = {
   news: {
     title: "Minecraft 新增内容",
     subtitle: "按版本精选，从新到旧。",
+    searchPlaceholder: "搜索更新",
+    noResults: "没有符合搜索的更新。",
+    added: "新增",
+    changed: "变更",
+    fixed: "修复",
+    removed: "移除",
   },
   settings: {
     title: "设置",
@@ -194,46 +199,5 @@ export const zh: Dictionary = {
     imported: "实例已导入",
     accountAdded: "已添加账户",
     error: "出现错误",
-  },
-  changelog: {
-    "1.21": {
-      title: "诡异的试炼",
-      summary: "试炼密室、重锤与新生物。",
-      highlights: [
-        "带有试炼刷怪笼和宝库的试炼密室",
-        "重锤——强大的新武器",
-        "旋风人与骸髅生物，以及风弹",
-        "合成器方块，实现自动合成",
-      ],
-    },
-    "1.20": {
-      title: "溢彩心情",
-      summary: "考古、樱花林与骆驼。",
-      highlights: [
-        "使用刷子与可疑的沙子进行考古",
-        "樱花林生物群系与粉色花瓣",
-        "骆驼、嗅探兽与远古幽匿植物",
-        "竹木套件与悬挂告示牌",
-      ],
-    },
-    "1.19": {
-      title: "荒野更新",
-      summary: "深暗之域、监守者与红树林沼泽。",
-      highlights: [
-        "深暗之域生物群系与远古城市",
-        "监守者——失明但致命的生物",
-        "红树林沼泽与青蛙家族",
-        "悦灵，帮你收集物品的生物",
-      ],
-    },
-    "1.18": {
-      title: "洞穴与山崖 II",
-      summary: "更高的世界与壮观的新地形。",
-      highlights: [
-        "世界高度从 -64 扩展到 320",
-        "繁茂洞穴与滴水石洞",
-        "重制的山地与全新洞穴生成",
-      ],
-    },
   },
 }

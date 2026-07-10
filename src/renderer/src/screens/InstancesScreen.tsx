@@ -214,7 +214,7 @@ function CreateInstanceDialog({
       onClick={onClose}
     >
       <motion.div
-        className={`modal glass glass-strong ${step === "content" ? "modal--wide" : ""}`}
+        className={`modal glass glass-strong ${step === "content" || mode === "modpack" ? "modal--wide" : ""}`}
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -223,10 +223,12 @@ function CreateInstanceDialog({
       >
         <div className="modal__head">
           <h3 className="modal__title">{t("wizard.title")}</h3>
-          <div className="wizard__steps">
-            <span className={step === "basics" ? "is-active" : ""}>1. {t("wizard.stepBasics")}</span>
-            <span className={step === "content" ? "is-active" : ""}>2. {t("wizard.stepContent")}</span>
-          </div>
+          {mode === "custom" && (
+            <div className="wizard__steps">
+              <span className={step === "basics" ? "is-active" : ""}>1. {t("wizard.stepBasics")}</span>
+              <span className={step === "content" ? "is-active" : ""}>2. {t("wizard.stepContent")}</span>
+            </div>
+          )}
         </div>
 
         {step === "basics" ? (
@@ -252,11 +254,13 @@ function CreateInstanceDialog({
 
             {mode === "modpack" ? (
               <>
-                <ModpackBrowser
-                  onInstalled={() => {
-                    onCreated()
-                  }}
-                />
+                <div className="wizard__browser">
+                  <ModpackBrowser
+                    onInstalled={() => {
+                      onCreated()
+                    }}
+                  />
+                </div>
                 <div className="modal__actions">
                   <button className="btn btn-ghost" onClick={onClose}>
                     {t("common.cancel")}

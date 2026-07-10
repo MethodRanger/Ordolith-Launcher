@@ -131,7 +131,12 @@ export interface JavaRuntime {
 
 export interface ContentSearchQuery {
   query: string
-  instanceId: string
+  /** Optional: scope results/facets to an existing instance's loader + version. */
+  instanceId?: string
+  /** Optional loader filter used when browsing without an instance. */
+  loader?: ModLoader
+  /** Optional Minecraft version filter used when browsing without an instance. */
+  gameVersion?: string
   type: ContentType
   category?: string
   sort?: "relevance" | "downloads" | "updated"

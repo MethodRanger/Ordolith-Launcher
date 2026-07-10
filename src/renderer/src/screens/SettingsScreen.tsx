@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Check, Download, FolderOpen, Globe, HardDrive, LogOut, UserPlus } from "lucide-react"
 import type { AppInfo, JavaRuntime, SystemMemoryInfo } from "@shared/ipc"
-import { useStore } from "../store/useStore"
+import { accountAvatar, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
 
 const AIKARS_FLAGS =
@@ -131,11 +131,11 @@ export function SettingsScreen(): React.JSX.Element {
             <motion.div key={a.id} layout className={`account-row ${a.active ? "is-active" : ""}`}>
               <button
                 className="account-row__avatar"
-                style={{ backgroundImage: a.avatarUrl ? `url(${a.avatarUrl})` : undefined }}
+                style={{ backgroundImage: accountAvatar(a) ? `url(${accountAvatar(a)})` : undefined }}
                 onClick={() => changeAvatar(a.id)}
                 title={t("settings.avatar")}
               >
-                {!a.avatarUrl && a.username[0]?.toUpperCase()}
+                {!accountAvatar(a) && a.username[0]?.toUpperCase()}
               </button>
               <div className="account-row__meta">
                 <span className="account-row__name">{a.username}</span>
