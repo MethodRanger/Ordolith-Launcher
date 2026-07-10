@@ -1,0 +1,102 @@
+:root {
+  --bg: #0e0f13;
+  --surface: #1a1c22;
+  --border: #2a2d36;
+  --text: #e7e9ee;
+  --muted: #9aa0ad;
+  --accent: #5b8cff;
+  --danger: #ff6b6b;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+  padding: 2rem;
+}
+
+.shell__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shell__title {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.shell__subtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+.shell__panel {
+  flex: 1;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.shell__panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shell__info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.shell__info dt {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.shell__info dd {
+  margin: 0.25rem 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.shell__error {
+  color: var(--danger);
+}
+
+.shell__footer {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
