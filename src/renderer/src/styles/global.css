@@ -1,11 +1,48 @@
+@import "@fontsource-variable/inter";
+
+/* ================================================================== */
+/* Ordolith — "Liquid Glass" design system                            */
+/* ================================================================== */
+
 :root {
-  --bg: #0e0f13;
-  --surface: #1a1c22;
-  --border: #2a2d36;
-  --text: #e7e9ee;
-  --muted: #9aa0ad;
-  --accent: #5b8cff;
+  /* Base surfaces */
+  --bg-0: #090b10;
+  --bg-1: #0e1118;
+
+  /* Glass fills (translucent, blurred over the ambient backdrop) */
+  --glass: rgba(22, 27, 38, 0.55);
+  --glass-strong: rgba(28, 34, 48, 0.72);
+  --glass-hover: rgba(38, 46, 64, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-strong: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+
+  /* Text */
+  --text: #eef1f7;
+  --muted: #9aa3b5;
+  --faint: #6b7488;
+
+  /* Accent (cyan-blue) */
+  --accent: #4cc8ff;
+  --accent-strong: #2ba7e6;
+  --accent-soft: rgba(76, 200, 255, 0.14);
   --danger: #ff6b6b;
+  --success: #41d1a7;
+
+  /* Geometry */
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 28px;
+
+  /* Elevation */
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.55);
+
+  /* Motion */
+  --spring: cubic-bezier(0.16, 1, 0.3, 1);
+
   color-scheme: dark;
 }
 
@@ -21,82 +58,180 @@ body,
 }
 
 body {
-  background: var(--bg);
   color: var(--text);
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
-.shell {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  height: 100%;
-  padding: 2rem;
+/* Ambient backdrop — the light source the glass refracts. */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 80% at 12% -10%, rgba(76, 200, 255, 0.18), transparent 55%),
+    radial-gradient(90% 70% at 100% 0%, rgba(65, 209, 167, 0.12), transparent 50%),
+    radial-gradient(80% 90% at 80% 110%, rgba(43, 91, 168, 0.16), transparent 55%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0));
 }
 
-.shell__header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.shell__title {
-  margin: 0;
-  font-size: 2rem;
+h1,
+h2,
+h3 {
   letter-spacing: -0.02em;
-}
-
-.shell__subtitle {
   margin: 0;
+  text-wrap: balance;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+  background-clip: content-box;
+}
+
+/* ---- Reusable glass primitive ------------------------------------ */
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md), inset 0 1px 0 var(--glass-highlight);
+}
+
+.glass-strong {
+  background: var(--glass-strong);
+}
+
+/* ---- Buttons ------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+  background: var(--glass);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    transform 0.25s var(--spring),
+    background 0.25s var(--spring),
+    border-color 0.25s var(--spring);
+}
+.btn:hover {
+  background: var(--glass-hover);
+  border-color: var(--glass-border-strong);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-accent {
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  border-color: transparent;
+  color: #04121b;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(76, 200, 255, 0.28);
+}
+.btn-accent:hover {
+  background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+  filter: brightness(1.06);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+.btn-ghost:hover {
+  background: var(--glass-hover);
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: var(--r-sm);
+}
+
+/* ---- Form controls ----------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label {
+  font-size: 12px;
   color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.2s var(--spring), box-shadow 0.2s var(--spring);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
-.shell__panel {
-  flex: 1;
-  padding: 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
+/* ---- Utility ------------------------------------------------------ */
 
-.shell__panel h2 {
-  margin: 0 0 1rem;
-  font-size: 1rem;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid rgba(76, 200, 255, 0.25);
+}
+.badge-muted {
+  background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  border-color: var(--glass-border);
 }
 
-.shell__info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin: 0;
+.no-drag {
+  -webkit-app-region: no-drag;
 }
-
-.shell__info dt {
-  font-size: 0.75rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.shell__info dd {
-  margin: 0.25rem 0 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.shell__error {
-  color: var(--danger);
-}
-
-.shell__footer {
-  color: var(--muted);
-  font-size: 0.85rem;
+.drag {
+  -webkit-app-region: drag;
 }

@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron"
 import { createMainWindow } from "./window.js"
 import { registerIpcHandlers } from "./ipc-handlers.js"
+import { paths } from "./paths.js"
 
 // A single app-wide instance lock prevents multiple launcher windows from
 // fighting over the same game/instance directories.
@@ -19,6 +20,7 @@ if (!gotLock) {
   })
 
   app.whenReady().then(() => {
+    paths.ensureBase()
     registerIpcHandlers()
     mainWindow = createMainWindow()
 

@@ -16,9 +16,16 @@
     "package": "electron-vite build && electron-builder --dir",
     "dist": "electron-vite build && electron-builder"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "adm-zip": "^0.6.0",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.24.0",
+    "zustand": "^5.0.14"
+  },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@types/adm-zip": "^0.5.8",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",

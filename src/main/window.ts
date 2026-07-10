@@ -13,9 +13,12 @@ export function createMainWindow(): BrowserWindow {
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: "#0e0f13",
+    backgroundColor: "#0b0d12",
     title: "Ordolith",
-    frame: true,
+    // Frameless: the renderer draws its own Liquid Glass title bar + controls.
+    frame: false,
+    titleBarStyle: "hidden",
+    trafficLightPosition: { x: 16, y: 16 },
     webPreferences: {
       preload: join(__dirname, "../preload/index.mjs"),
       sandbox: false,
