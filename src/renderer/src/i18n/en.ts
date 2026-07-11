@@ -8,6 +8,14 @@ export const en = {
     news: "News",
     settings: "Settings",
   },
+  palette: {
+    placeholder: "Search screens and actions…",
+    empty: "No matches.",
+    navigate: "Go to",
+    actions: "Actions",
+    launchLast: "Launch last instance",
+    open: "Open command palette",
+  },
   common: {
     add: "Add",
     cancel: "Cancel",
@@ -89,6 +97,8 @@ export const en = {
     manage: "Profiles",
     clone: "Clone",
     copyName: "Copy of {name}",
+    viewDetailed: "Detailed view",
+    viewCompact: "Compact view",
   },
   profiles: {
     title: "Mod profiles",
@@ -194,12 +204,18 @@ export const en = {
   news: {
     title: "What's new in Minecraft",
     subtitle: "Version highlights, newest first.",
+    eyebrow: "Release notes",
     searchPlaceholder: "Search updates",
     noResults: "No updates match your search.",
     added: "Added",
     changed: "Changed",
     fixed: "Fixed",
     removed: "Removed",
+    allVersions: "All versions",
+    filterLabel: "Version line",
+    lineHint: "{v} and its sub-versions",
+    releasesOne: "{n} release",
+    releasesMany: "{n} releases",
   },
   settings: {
     title: "Settings",

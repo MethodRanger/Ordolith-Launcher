@@ -9,6 +9,14 @@ export const ru: Dictionary = {
     news: "Новости",
     settings: "Настройки",
   },
+  palette: {
+    placeholder: "Поиск экранов и действий…",
+    empty: "Ничего не найдено.",
+    navigate: "Перейти",
+    actions: "Действия",
+    launchLast: "Запустить последнюю сборку",
+    open: "Открыть палитру команд",
+  },
   common: {
     add: "Добавить",
     cancel: "Отмена",
@@ -90,6 +98,8 @@ export const ru: Dictionary = {
     manage: "Профили",
     clone: "Клонировать",
     copyName: "Копия {name}",
+    viewDetailed: "Подробный вид",
+    viewCompact: "Компактный вид",
   },
   profiles: {
     title: "Профили модов",
@@ -195,11 +205,17 @@ export const ru: Dictionary = {
   news: {
     title: "Что нового в Minecraft",
     subtitle: "Главное по версиям, от новых к старым.",
+    eyebrow: "Список изменений",
     searchPlaceholder: "Поиск по обновлениям",
     noResults: "Ничего не найдено по запросу.",
     added: "Добавлено",
     changed: "Изменено",
     fixed: "Исправлено",
+    allVersions: "Все версии",
+    filterLabel: "Линейка версий",
+    lineHint: "{v} и её подверсии",
+    releasesOne: "{n} релиз",
+    releasesMany: "релизов: {n}",
     removed: "Удалено",
   },
   settings: {

@@ -9,6 +9,14 @@ export const zh: Dictionary = {
     news: "新闻",
     settings: "设置",
   },
+  palette: {
+    placeholder: "搜索页面与操作…",
+    empty: "无匹配项。",
+    navigate: "前往",
+    actions: "操作",
+    launchLast: "启动上次的实例",
+    open: "打开命令面板",
+  },
   common: {
     add: "添加",
     cancel: "取消",
@@ -90,6 +98,8 @@ export const zh: Dictionary = {
     manage: "配置方案",
     clone: "克隆",
     copyName: "{name} 的副本",
+    viewDetailed: "详细视图",
+    viewCompact: "紧凑视图",
   },
   profiles: {
     title: "模组方案",
@@ -195,12 +205,18 @@ export const zh: Dictionary = {
   news: {
     title: "Minecraft 新增内容",
     subtitle: "按版本精选，从新到旧。",
+    eyebrow: "更新日志",
     searchPlaceholder: "搜索更新",
     noResults: "没有符合搜索的更新。",
     added: "新增",
     changed: "变更",
     fixed: "修复",
     removed: "移除",
+    allVersions: "所有版本",
+    filterLabel: "版本线",
+    lineHint: "{v} 及其子版本",
+    releasesOne: "{n} 个版本",
+    releasesMany: "{n} 个版本",
   },
   settings: {
     title: "设置",
@@ -259,7 +275,7 @@ export const zh: Dictionary = {
     subtitle: "{name} 意外退出（退出码 {code}）。",
     likely: "可能原因",
     log: "崩溃日志",
-    copy: "复制日志",
+    copy: "���制日志",
     copied: "已复制",
     noLog: "未捕获到任何日志输出。",
     hint: {

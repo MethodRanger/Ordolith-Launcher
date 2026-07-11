@@ -12,6 +12,7 @@ import { SettingsScreen } from "./screens/SettingsScreen"
 import { CrashScreen } from "./screens/CrashScreen"
 import { Splash } from "./components/Splash"
 import { ToastHost } from "./components/ToastHost"
+import { CommandPalette } from "./components/CommandPalette"
 import { useStore } from "./store/useStore"
 
 /** True when this window was opened as the standalone crash assistant. */
@@ -88,6 +89,7 @@ export function App(): React.JSX.Element {
           </AnimatePresence>
         </main>
       </div>
+      <CommandPalette />
       <ToastHost />
     </div>
   )

@@ -9,6 +9,14 @@ export const es: Dictionary = {
     news: "Novedades",
     settings: "Ajustes",
   },
+  palette: {
+    placeholder: "Buscar pantallas y acciones…",
+    empty: "Sin coincidencias.",
+    navigate: "Ir a",
+    actions: "Acciones",
+    launchLast: "Iniciar última instancia",
+    open: "Abrir paleta de comandos",
+  },
   common: {
     add: "Añadir",
     cancel: "Cancelar",
@@ -90,6 +98,8 @@ export const es: Dictionary = {
     manage: "Perfiles",
     clone: "Clonar",
     copyName: "Copia de {name}",
+    viewDetailed: "Vista detallada",
+    viewCompact: "Vista compacta",
   },
   profiles: {
     title: "Perfiles de mods",
@@ -195,12 +205,18 @@ export const es: Dictionary = {
   news: {
     title: "Novedades de Minecraft",
     subtitle: "Lo destacado por versión, de nuevo a antiguo.",
+    eyebrow: "Notas de versión",
     searchPlaceholder: "Buscar actualizaciones",
     noResults: "Ninguna actualización coincide con tu búsqueda.",
     added: "Añadido",
     changed: "Cambiado",
     fixed: "Corregido",
     removed: "Eliminado",
+    allVersions: "Todas las versiones",
+    filterLabel: "Línea de versión",
+    lineHint: "{v} y sus subversiones",
+    releasesOne: "{n} versión",
+    releasesMany: "{n} versiones",
   },
   settings: {
     title: "Ajustes",
