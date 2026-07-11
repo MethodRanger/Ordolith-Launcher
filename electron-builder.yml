@@ -2,6 +2,12 @@ appId: dev.methodranger.ordolith
 productName: Ordolith
 copyright: Copyright © 2026 MethodRanger
 
+# Publish target for `electron-builder --publish` (used by the CI release workflow).
+publish:
+  provider: github
+  owner: MethodRanger
+  repo: Ordolith-Launcher
+
 directories:
   output: release/${version}
   buildResources: build
