@@ -46,6 +46,40 @@
   color-scheme: dark;
 }
 
+/* ---- Accent themes (applied via [data-theme] on <html>) ----------- */
+/* Each theme re-points the accent tokens; every accent-driven surface
+   (buttons, badges, sidebar, progress, focus rings) updates automatically. */
+[data-theme="midnight"] {
+  --accent: #6ea8fe;
+  --accent-strong: #4d84e8;
+  --accent-soft: rgba(110, 168, 254, 0.14);
+  --bg-1: #0a0c14;
+}
+[data-theme="nebula"] {
+  --accent: #c77dff;
+  --accent-strong: #a24fe0;
+  --accent-soft: rgba(199, 125, 255, 0.14);
+  --bg-1: #120e1a;
+}
+[data-theme="forest"] {
+  --accent: #54d18c;
+  --accent-strong: #33b06d;
+  --accent-soft: rgba(84, 209, 140, 0.14);
+  --bg-1: #0b120e;
+}
+[data-theme="sunset"] {
+  --accent: #ff9d54;
+  --accent-strong: #f07d2a;
+  --accent-soft: rgba(255, 157, 84, 0.14);
+  --bg-1: #160f0d;
+}
+[data-theme="mono"] {
+  --accent: #c4c9d4;
+  --accent-strong: #9aa3b5;
+  --accent-soft: rgba(196, 201, 212, 0.14);
+  --bg-1: #101216;
+}
+
 * {
   box-sizing: border-box;
 }
