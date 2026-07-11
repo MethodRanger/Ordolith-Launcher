@@ -116,7 +116,7 @@
   transition: color 0.2s ease, background 0.2s ease;
 }
 .wizard__steps span.is-active {
-  color: var(--bg);
+  color: var(--on-accent);
   background: var(--accent);
   font-weight: 600;
 }
@@ -235,6 +235,41 @@
   100% {
     transform: translateX(100%);
   }
+}
+
+/* ================================================================== */
+/* Bulk operations bar (installed content)                            */
+/* ================================================================== */
+.bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.bulkbar__count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+}
+.bulkbar__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.server__check {
+  width: 34px;
+  height: 34px;
+  color: var(--muted);
+}
+.server__check[aria-pressed="true"] {
+  color: var(--accent);
+}
+.server--selected {
+  border-color: var(--glass-border-strong);
+  box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.2);
 }
 
 /* ================================================================== */
@@ -400,7 +435,7 @@
   width: 96px;
   height: 96px;
   border-radius: 26px;
-  filter: drop-shadow(0 18px 48px rgba(91, 157, 240, 0.35));
+  filter: drop-shadow(0 18px 48px rgba(52, 211, 153, 0.35));
 }
 .splash__name {
   font-size: 20px;
@@ -412,7 +447,7 @@
   width: 120px;
   height: 3px;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--accent-teal, #7ce0d3), var(--accent, #5b9df0), var(--accent-purple, #8b6cf0));
+  background: linear-gradient(90deg, var(--accent), var(--accent-2, #60a5fa), var(--accent-strong));
   background-size: 200% 100%;
   animation: splash-bar 1.4s ease-in-out infinite;
 }
@@ -431,7 +466,7 @@
   inset: 0;
   border-radius: 12px;
   background: var(--accent-soft);
-  border: 1px solid var(--accent-border, rgba(91, 157, 240, 0.3));
+  border: 1px solid var(--accent-border, rgba(52, 211, 153, 0.3));
   z-index: 0;
 }
 .sidebar__item .sidebar__icon,
@@ -468,9 +503,9 @@
   max-width: 320px;
   text-align: left;
 }
-.toast--success { color: var(--accent-teal, #7ce0d3); }
-.toast--error { color: var(--danger, #f0616d); }
-.toast--info { color: var(--accent, #5b9df0); }
+.toast--success { color: var(--success); }
+.toast--error { color: var(--danger); }
+.toast--info { color: var(--accent-2, #60a5fa); }
 .toast span { color: var(--text); }
 
 /* ---- Skeleton lines --------------------------------------------- */
@@ -877,7 +912,7 @@ textarea.input {
   color: var(--text);
 }
 .content-card__fav.is-active {
-  color: #ffb454;
+  color: #fbbf24;
 }
 .content-card {
   position: relative;

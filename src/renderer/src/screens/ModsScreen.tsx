@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { AlertTriangle, ArrowUpCircle, PackageOpen, Star, ToggleLeft, ToggleRight, Trash2 } from "lucide-react"
+import { AlertTriangle, ArrowUpCircle, CheckSquare, PackageOpen, Square, Star, ToggleLeft, ToggleRight, Trash2 } from "lucide-react"
 import type { ContentProject, ContentType, ContentUpdate, InstalledContent } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
@@ -31,6 +31,8 @@ export function ModsScreen(): React.JSX.Element {
   const [updates, setUpdates] = useState<ContentUpdate[]>([])
   const [checking, setChecking] = useState(false)
   const [updating, setUpdating] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkBusy, setBulkBusy] = useState(false)
 
   const instance = instances.find((i) => i.id === selectedId) ?? instances[0]
 
@@ -41,9 +43,47 @@ export function ModsScreen(): React.JSX.Element {
 
   useEffect(() => {
     setUpdates([])
+    setSelected(new Set())
     if (tab === "installed") void loadInstalled()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, type, instance?.id])
+
+  function toggleSelect(fileName: string): void {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(fileName)) next.delete(fileName)
+      else next.add(fileName)
+      return next
+    })
+  }
+
+  function toggleSelectAll(): void {
+    setSelected((prev) =>
+      prev.size === installed.length ? new Set() : new Set(installed.map((i) => i.fileName)),
+    )
+  }
+
+  async function runBulk(action: "enable" | "disable" | "remove"): Promise<void> {
+    if (!instance || selected.size === 0) return
+    setBulkBusy(true)
+    try {
+      const targets = [...selected]
+      for (const fileName of targets) {
+        if (action === "remove") {
+          await window.ordolith.content.remove(instance.id, type, fileName)
+        } else {
+          await window.ordolith.content.toggle(instance.id, type, fileName, action === "enable")
+        }
+      }
+      setSelected(new Set())
+      await loadInstalled()
+      pushToast(t("mods.bulkDone", { n: targets.length }), "success")
+    } catch {
+      pushToast(t("toast.error"), "error")
+    } finally {
+      setBulkBusy(false)
+    }
+  }
 
   async function checkUpdates(): Promise<void> {
     if (!instance) return
@@ -202,6 +242,33 @@ export function ModsScreen(): React.JSX.Element {
               </button>
             ))}
           </div>
+          {installed.length > 0 && (
+            <div className="bulkbar glass">
+              <button className="btn btn-ghost" onClick={toggleSelectAll}>
+                {selected.size === installed.length ? <CheckSquare size={16} /> : <Square size={16} />}
+                {t("mods.selectAll")}
+              </button>
+              {selected.size > 0 && (
+                <>
+                  <span className="bulkbar__count">{t("mods.selected", { n: selected.size })}</span>
+                  <div className="bulkbar__actions">
+                    <button className="btn" disabled={bulkBusy} onClick={() => runBulk("enable")}>
+                      <ToggleRight size={15} /> {t("mods.bulkEnable")}
+                    </button>
+                    <button className="btn" disabled={bulkBusy} onClick={() => runBulk("disable")}>
+                      <ToggleLeft size={15} /> {t("mods.bulkDisable")}
+                    </button>
+                    <button className="btn btn-danger" disabled={bulkBusy} onClick={() => runBulk("remove")}>
+                      <Trash2 size={15} /> {t("mods.bulkRemove")}
+                    </button>
+                    <button className="btn btn-ghost" onClick={() => setSelected(new Set())}>
+                      {t("mods.clearSelection")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <div className="server-list">
             {installed.length === 0 ? (
               <div className="empty glass">
@@ -210,8 +277,17 @@ export function ModsScreen(): React.JSX.Element {
             ) : (
               installed.map((item) => {
                 const update = updateFor(item.fileName)
+                const isSelected = selected.has(item.fileName)
                 return (
-                  <div className="server glass" key={item.id}>
+                  <div className={`server glass ${isSelected ? "server--selected" : ""}`} key={item.id}>
+                    <button
+                      className="server__check btn-icon"
+                      aria-label={t("mods.selectAll")}
+                      aria-pressed={isSelected}
+                      onClick={() => toggleSelect(item.fileName)}
+                    >
+                      {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                    </button>
                     <PackageOpen size={22} />
                     <div className="server__info">
                       <h3>
