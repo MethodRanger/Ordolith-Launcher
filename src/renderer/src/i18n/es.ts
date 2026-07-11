@@ -235,6 +235,7 @@ export const es: Dictionary = {
     dataDir: "Carpeta de datos",
     openDataDir: "Abrir",
     about: "Acerca de",
+    support: "Panel de soporte",
     closeToTray: "Mantener en la bandeja del sistema al cerrar",
     appearance: "Apariencia",
     themeDesc: "Elige un tema de acento para la interfaz del lanzador.",

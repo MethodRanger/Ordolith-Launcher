@@ -234,6 +234,7 @@ export const en = {
     dataDir: "Data directory",
     openDataDir: "Open",
     about: "About",
+    support: "Support panel",
     closeToTray: "Keep running in the system tray on close",
     appearance: "Appearance",
     themeDesc: "Choose an accent theme for the launcher interface.",

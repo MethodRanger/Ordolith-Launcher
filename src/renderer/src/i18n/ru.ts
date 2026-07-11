@@ -235,6 +235,7 @@ export const ru: Dictionary = {
     dataDir: "Папка данных",
     openDataDir: "Открыть",
     about: "О программе",
+    support: "Панель поддержки",
     closeToTray: "Сворачивать в трей при закрытии",
     appearance: "Оформление",
     themeDesc: "Выберите акцентную тему для интерфейса лаунчера.",

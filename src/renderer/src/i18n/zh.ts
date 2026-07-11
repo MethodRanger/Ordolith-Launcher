@@ -235,6 +235,7 @@ export const zh: Dictionary = {
     dataDir: "数据目录",
     openDataDir: "打开",
     about: "关于",
+    support: "支持面板",
     closeToTray: "关闭时保留在系统托盘",
     appearance: "外观",
     themeDesc: "为启动器界面选择一个强调主题。",

@@ -948,3 +948,11 @@ textarea.input {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ================================================================== */
+/* Support panel link (About section)                                 */
+/* ================================================================== */
+.support-link {
+  margin-top: 16px;
+  text-decoration: none;
+}

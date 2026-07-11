@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Check, Download, FolderOpen, Globe, HardDrive, LogOut, Palette, ServerCog, ShieldAlert, UserPlus } from "lucide-react"
+import { Check, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, ServerCog, ShieldAlert, UserPlus } from "lucide-react"
 import type { AppInfo, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
 import { accountAvatar, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
@@ -364,6 +364,14 @@ export function SettingsScreen(): React.JSX.Element {
             </div>
           </div>
         )}
+        <a
+          className="btn support-link"
+          href="https://v0-ordolith.vercel.app/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <LifeBuoy size={16} /> {t("settings.support")}
+        </a>
       </section>
     </div>
   )
