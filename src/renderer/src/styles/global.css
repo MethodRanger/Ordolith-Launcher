@@ -930,6 +930,20 @@ select.input option {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
 }
+.grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+.card--compact {
+  padding: 14px;
+  gap: 6px;
+}
+.card--compact .card__actions .btn-icon {
+  display: none;
+}
+.card--compact .card__actions .btn-accent {
+  padding-block: 8px;
+}
 .card {
   padding: 20px;
   display: flex;

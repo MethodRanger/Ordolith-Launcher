@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Archive, Boxes, Clock, Copy, Download, FolderOpen, Layers, Package, Play, Plus, RotateCcw, Save, Timer, Trash2, Upload } from "lucide-react"
+import { Archive, Boxes, Clock, Copy, Download, FolderOpen, LayoutGrid, Layers, List, Package, Play, Plus, RotateCcw, Save, Timer, Trash2, Upload } from "lucide-react"
 import type { BackupEntry, ContentProject, ContentType, Instance, InstanceProfile, ModLoader } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
@@ -30,7 +30,7 @@ function formatBytes(bytes: number): string {
 }
 
 const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt", "neoforge"]
-const COLORS = ["#4cc8ff", "#41d1a7", "#ffb454", "#ff6b6b", "#a78bfa", "#f472b6"]
+const COLORS = ["#34d399", "#60a5fa", "#22d3ee", "#fbbf24", "#f87171", "#f472b6"]
 
 export function InstancesScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
@@ -44,6 +44,15 @@ export function InstancesScreen(): React.JSX.Element {
 
   const [creating, setCreating] = useState(false)
   const [managing, setManaging] = useState<Instance | null>(null)
+  const [compact, setCompact] = useState(() => localStorage.getItem("ordolith:instanceView") === "compact")
+
+  function toggleDensity(): void {
+    setCompact((prev) => {
+      const next = !prev
+      localStorage.setItem("ordolith:instanceView", next ? "compact" : "detailed")
+      return next
+    })
+  }
 
   async function clone(id: string): Promise<void> {
     const source = instances.find((i) => i.id === id)
@@ -97,6 +106,14 @@ export function InstancesScreen(): React.JSX.Element {
           <p>{t("instances.subtitle")}</p>
         </div>
         <div className="page-head__tools">
+          <button
+            className="btn btn-icon"
+            onClick={toggleDensity}
+            aria-label={compact ? t("instances.viewDetailed") : t("instances.viewCompact")}
+            title={compact ? t("instances.viewDetailed") : t("instances.viewCompact")}
+          >
+            {compact ? <LayoutGrid size={16} /> : <List size={16} />}
+          </button>
           <button className="btn" onClick={importInstance}>
             <Upload size={16} /> {t("instances.import")}
           </button>
@@ -106,12 +123,12 @@ export function InstancesScreen(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="grid">
+      <div className={`grid ${compact ? "grid--compact" : ""}`}>
         {instances.map((i) => (
           <motion.div
             key={i.id}
             layout
-            className="card glass"
+            className={`card glass ${compact ? "card--compact" : ""}`}
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
           >
@@ -123,11 +140,13 @@ export function InstancesScreen(): React.JSX.Element {
               </div>
             </div>
             <p className="card__meta">Minecraft {i.versionId}</p>
-            <p className="card__sub">
-              <Clock size={13} /> {relativeTime(i.lastPlayed)}
-              <span className="card__sub-sep" aria-hidden>·</span>
-              <Timer size={13} /> {formatPlayTime(i.totalPlayMs)}
-            </p>
+            {!compact && (
+              <p className="card__sub">
+                <Clock size={13} /> {relativeTime(i.lastPlayed)}
+                <span className="card__sub-sep" aria-hidden>·</span>
+                <Timer size={13} /> {formatPlayTime(i.totalPlayMs)}
+              </p>
+            )}
             <div className="card__actions">
               <button className="btn btn-accent" onClick={() => playNow(i.id)}>
                 <Play size={16} /> {t("play.launch")}

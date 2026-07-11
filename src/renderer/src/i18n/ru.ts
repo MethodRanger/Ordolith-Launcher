@@ -98,6 +98,8 @@ export const ru: Dictionary = {
     manage: "Профили",
     clone: "Клонировать",
     copyName: "Копия {name}",
+    viewDetailed: "Подробный вид",
+    viewCompact: "Компактный вид",
   },
   profiles: {
     title: "Профили модов",

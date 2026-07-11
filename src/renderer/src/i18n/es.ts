@@ -98,6 +98,8 @@ export const es: Dictionary = {
     manage: "Perfiles",
     clone: "Clonar",
     copyName: "Copia de {name}",
+    viewDetailed: "Vista detallada",
+    viewCompact: "Vista compacta",
   },
   profiles: {
     title: "Perfiles de mods",

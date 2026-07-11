@@ -97,6 +97,8 @@ export const en = {
     manage: "Profiles",
     clone: "Clone",
     copyName: "Copy of {name}",
+    viewDetailed: "Detailed view",
+    viewCompact: "Compact view",
   },
   profiles: {
     title: "Mod profiles",
