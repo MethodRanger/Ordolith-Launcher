@@ -13,7 +13,7 @@ import type {
 } from "@shared/ipc"
 import { useI18nStore } from "../i18n"
 
-export type View = "play" | "instances" | "mods" | "servers" | "news" | "settings"
+export type View = "play" | "instances" | "mods" | "servers" | "news" | "stats" | "settings"
 
 interface LaunchState {
   progress: ProgressEvent | null

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Boxes, Gamepad2, Newspaper, Play, Search, Server, Settings2, Package } from "lucide-react"
+import { BarChart3, Boxes, Gamepad2, Newspaper, Play, Search, Server, Settings2, Package } from "lucide-react"
 import { useI18n } from "../i18n"
 import { useStore, type View } from "../store/useStore"
 
@@ -79,6 +79,7 @@ export function CommandPalette(): React.JSX.Element {
       { id: "mods", label: t("nav.mods"), hint: t("palette.navigate"), icon: Package, group: "navigate", run: () => go("mods") },
       { id: "servers", label: t("nav.servers"), hint: t("palette.navigate"), icon: Server, group: "navigate", run: () => go("servers") },
       { id: "news", label: t("nav.news"), hint: t("palette.navigate"), icon: Newspaper, group: "navigate", run: () => go("news") },
+      { id: "stats", label: t("nav.stats"), hint: t("palette.navigate"), icon: BarChart3, group: "navigate", run: () => go("stats") },
       { id: "settings", label: t("nav.settings"), hint: t("palette.navigate"), icon: Settings2, group: "navigate", run: () => go("settings") },
       { id: "launch-last", label: t("palette.launchLast"), hint: t("palette.actions"), icon: Play, group: "actions", run: launchLast },
     ],

@@ -8,6 +8,7 @@ import { InstancesScreen } from "./screens/InstancesScreen"
 import { ServersScreen } from "./screens/ServersScreen"
 import { ModsScreen } from "./screens/ModsScreen"
 import { NewsScreen } from "./screens/NewsScreen"
+import { StatsScreen } from "./screens/StatsScreen"
 import { SettingsScreen } from "./screens/SettingsScreen"
 import { CrashScreen } from "./screens/CrashScreen"
 import { Splash } from "./components/Splash"
@@ -84,6 +85,7 @@ export function App(): React.JSX.Element {
               {view === "mods" && <ModsScreen />}
               {view === "servers" && <ServersScreen />}
               {view === "news" && <NewsScreen />}
+              {view === "stats" && <StatsScreen />}
               {view === "settings" && <SettingsScreen />}
             </motion.div>
           </AnimatePresence>
