@@ -9,21 +9,45 @@ import { ServersScreen } from "./screens/ServersScreen"
 import { ModsScreen } from "./screens/ModsScreen"
 import { NewsScreen } from "./screens/NewsScreen"
 import { SettingsScreen } from "./screens/SettingsScreen"
+import { CrashScreen } from "./screens/CrashScreen"
 import { Splash } from "./components/Splash"
 import { ToastHost } from "./components/ToastHost"
 import { useStore } from "./store/useStore"
+
+/** True when this window was opened as the standalone crash assistant. */
+const IS_CRASH_WINDOW = new URLSearchParams(window.location.search).get("view") === "crash"
 
 export function App(): React.JSX.Element {
   const ready = useStore((s) => s.ready)
   const view = useStore((s) => s.view)
   const accounts = useStore((s) => s.accounts)
+  const theme = useStore((s) => s.settings?.theme ?? "ordolith")
   const bootstrap = useStore((s) => s.bootstrap)
   const [platform, setPlatform] = useState<NodeJS.Platform>("linux")
 
   useEffect(() => {
-    bootstrap()
     window.ordolith.app.getInfo().then((i) => setPlatform(i.platform))
+    if (IS_CRASH_WINDOW) return
+    bootstrap()
   }, [bootstrap])
+
+  // Apply the active theme to the document root so CSS token overrides kick in.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  // The crash assistant is a self-contained window with its own chrome.
+  if (IS_CRASH_WINDOW) {
+    return (
+      <div className="shell shell--crash">
+        <div className="app-backdrop" />
+        <TitleBar platform={platform} crashMode />
+        <main className="shell__main">
+          <CrashScreen />
+        </main>
+      </div>
+    )
+  }
 
   if (!ready) {
     return <Splash />

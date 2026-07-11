@@ -193,6 +193,102 @@ export interface InstalledContent {
   enabled: boolean
   installedAt: number
   updateAvailable?: boolean
+  /** Whether this file matches the instance's loader + Minecraft version. */
+  compatible?: boolean
+  /** True when installed automatically as a dependency of another project. */
+  dependency?: boolean
+  iconUrl?: string
+}
+
+/** A pending update discovered for an installed file. */
+export interface ContentUpdate {
+  fileName: string
+  title: string
+  currentVersion: string
+  latestVersion: string
+  latestFileName: string
+  size: number
+}
+
+/** A dependency that must be installed alongside a chosen project. */
+export interface ResolvedDependency {
+  project: ContentProject
+  file: ContentFile
+  required: boolean
+}
+
+/** A saved/favourited project the user can revisit quickly. */
+export interface FavoriteContent {
+  id: string
+  provider: ContentProvider
+  slug: string
+  title: string
+  iconUrl?: string
+  author: string
+  type: ContentType
+  addedAt: number
+}
+
+/** A named set of enabled mods inside a single instance. */
+export interface InstanceProfile {
+  id: string
+  name: string
+  /** File names (mods) that should be enabled when this profile is applied. */
+  enabled: string[]
+  createdAt: number
+}
+
+/** One recorded play session for the history view. */
+export interface PlaySession {
+  id: string
+  instanceId: string
+  instanceName: string
+  startedAt: number
+  endedAt: number
+  durationMs: number
+  crashed: boolean
+}
+
+/** Live resource-usage sample for a running instance. */
+export interface ResourceSample {
+  instanceId: string
+  pid: number
+  cpu: number
+  memoryMb: number
+  uptimeMs: number
+}
+
+/** A captured screenshot from an instance's screenshots folder. */
+export interface Screenshot {
+  instanceId: string
+  name: string
+  path: string
+  /** Custom-protocol URL safe to render in the sandboxed renderer. */
+  url: string
+  size: number
+  takenAt: number
+}
+
+/** A world/config backup archive for an instance. */
+export interface BackupEntry {
+  id: string
+  instanceId: string
+  instanceName: string
+  fileName: string
+  path: string
+  size: number
+  createdAt: number
+}
+
+/** Crash diagnostics surfaced by the crash-assistant window. */
+export interface CrashReport {
+  instanceId: string
+  instanceName: string
+  exitCode: number | null
+  log: string
+  /** Translation keys describing likely causes / fixes. */
+  hints: string[]
+  createdAt: number
 }
 
 export interface ContentSearchResult {
@@ -201,12 +297,20 @@ export interface ContentSearchResult {
   providerHealth: Record<ContentProvider, "online" | "unavailable" | "error" | "cached">
 }
 
+export type ThemeId = "ordolith" | "midnight" | "nebula" | "forest" | "sunset" | "mono"
+
 export interface LauncherSettings {
   locale: AppLocale
   defaultMinMemoryMb: number
   defaultMaxMemoryMb: number
   jvmArgs: string
   closeToTray: boolean
+  /** Active UI theme. */
+  theme: ThemeId
+  /** Automatically re-ping saved servers on an interval. */
+  serverAutoRefresh: boolean
+  /** Open the crash assistant window automatically when the game crashes. */
+  crashAssistant: boolean
 }
 
 export interface SystemMemoryInfo {
@@ -242,6 +346,12 @@ export interface Instance {
   iconColor: string
   iconPath?: string
   gameDirectory?: string
+  /** Saved mod profiles for this instance. */
+  profiles?: InstanceProfile[]
+  /** Currently applied profile id, if any. */
+  activeProfileId?: string
+  /** Accumulated play time in milliseconds. */
+  totalPlayMs?: number
 }
 
 /* ------------------------------------------------------------------ */

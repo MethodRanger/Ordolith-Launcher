@@ -3,6 +3,10 @@ import { createMainWindow } from "./window.js"
 import { registerIpcHandlers } from "./ipc-handlers.js"
 import { paths } from "./paths.js"
 import { createTray } from "./tray.js"
+import { registerMediaProtocol, registerMediaScheme } from "./media.js"
+
+// Privileged schemes must be declared before the app is ready.
+registerMediaScheme()
 
 // A single app-wide instance lock prevents multiple launcher windows from
 // fighting over the same game/instance directories.
@@ -22,6 +26,7 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     paths.ensureBase()
+    registerMediaProtocol()
     registerIpcHandlers()
     mainWindow = createMainWindow()
     createTray(() => mainWindow)

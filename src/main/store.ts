@@ -1,28 +1,39 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs"
 import { safeStorage } from "electron"
 import { paths } from "./paths.js"
-import type { Account, Instance, LauncherSettings, SavedServer } from "../shared/types.js"
+import type { Account, BackupEntry, FavoriteContent, Instance, LauncherSettings, PlaySession, SavedServer } from "../shared/types.js"
 
 interface ConfigShape {
   accounts: Account[]
   instances: Instance[]
   servers: SavedServer[]
   settings: LauncherSettings
+  sessions: PlaySession[]
+  favorites: FavoriteContent[]
+  backups: BackupEntry[]
   /** Per-account encrypted secrets (e.g. MS refresh token), base64. */
   secrets: Record<string, string>
+}
+
+const DEFAULT_SETTINGS: LauncherSettings = {
+  locale: "en",
+  defaultMinMemoryMb: 512,
+  defaultMaxMemoryMb: 2048,
+  jvmArgs: "",
+  closeToTray: false,
+  theme: "ordolith",
+  serverAutoRefresh: true,
+  crashAssistant: true,
 }
 
 const EMPTY: ConfigShape = {
   accounts: [],
   instances: [],
   servers: [],
-  settings: {
-    locale: "en",
-    defaultMinMemoryMb: 512,
-    defaultMaxMemoryMb: 2048,
-    jvmArgs: "",
-    closeToTray: false,
-  },
+  settings: { ...DEFAULT_SETTINGS },
+  sessions: [],
+  favorites: [],
+  backups: [],
   secrets: {},
 }
 
@@ -113,7 +124,47 @@ class Store {
   }
 
   saveSettings(settings: LauncherSettings): void {
-    this.read().settings = settings
+    this.read().settings = { ...DEFAULT_SETTINGS, ...settings }
+    this.write()
+  }
+
+  /* Sessions ------------------------------------------------------- */
+
+  getSessions(): PlaySession[] {
+    return this.read().sessions
+  }
+
+  addSession(session: PlaySession): void {
+    const cfg = this.read()
+    // Keep the most recent 200 sessions.
+    cfg.sessions = [session, ...cfg.sessions].slice(0, 200)
+    this.write()
+  }
+
+  clearSessions(): void {
+    this.read().sessions = []
+    this.write()
+  }
+
+  /* Favorites ------------------------------------------------------ */
+
+  getFavorites(): FavoriteContent[] {
+    return this.read().favorites
+  }
+
+  saveFavorites(favorites: FavoriteContent[]): void {
+    this.read().favorites = favorites
+    this.write()
+  }
+
+  /* Backups -------------------------------------------------------- */
+
+  getBackups(): BackupEntry[] {
+    return this.read().backups
+  }
+
+  saveBackups(backups: BackupEntry[]): void {
+    this.read().backups = backups
     this.write()
   }
 

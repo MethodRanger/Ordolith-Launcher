@@ -1,11 +1,33 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Boxes, Clock, Download, FolderOpen, Package, Play, Plus, Trash2, Upload } from "lucide-react"
-import type { ContentProject, ContentType, Instance, ModLoader } from "@shared/ipc"
+import { Archive, Boxes, Clock, Copy, Download, FolderOpen, Layers, Package, Play, Plus, RotateCcw, Save, Timer, Trash2, Upload } from "lucide-react"
+import type { BackupEntry, ContentProject, ContentType, Instance, InstanceProfile, ModLoader } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
 import { ContentBrowser } from "../components/ContentBrowser"
 import { ModpackBrowser } from "../components/ModpackBrowser"
+
+/** Human-readable total play time, e.g. "12h 34m" or "45m". */
+function formatPlayTime(ms?: number): string {
+  if (!ms || ms < 60000) return "—"
+  const totalMin = Math.round(ms / 60000)
+  const h = Math.floor(totalMin / 60)
+  const m = totalMin % 60
+  return h > 0 ? `${h}h ${m}m` : `${m}m`
+}
+
+/** Human-readable file size, e.g. "12.4 MB". */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  const units = ["KB", "MB", "GB"]
+  let size = bytes / 1024
+  let i = 0
+  while (size >= 1024 && i < units.length - 1) {
+    size /= 1024
+    i++
+  }
+  return `${size.toFixed(1)} ${units[i]}`
+}
 
 const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt", "neoforge"]
 const COLORS = ["#4cc8ff", "#41d1a7", "#ffb454", "#ff6b6b", "#a78bfa", "#f472b6"]
@@ -21,6 +43,15 @@ export function InstancesScreen(): React.JSX.Element {
   const { t } = useI18n()
 
   const [creating, setCreating] = useState(false)
+  const [managing, setManaging] = useState<Instance | null>(null)
+
+  async function clone(id: string): Promise<void> {
+    const source = instances.find((i) => i.id === id)
+    if (!source) return
+    await window.ordolith.instances.clone(id, t("instances.copyName", { name: source.name }))
+    await refreshInstances()
+    pushToast(t("toast.cloned"), "success")
+  }
 
   function relativeTime(ts?: number): string {
     if (!ts) return t("instances.never")
@@ -94,6 +125,8 @@ export function InstancesScreen(): React.JSX.Element {
             <p className="card__meta">Minecraft {i.versionId}</p>
             <p className="card__sub">
               <Clock size={13} /> {relativeTime(i.lastPlayed)}
+              <span className="card__sub-sep" aria-hidden>·</span>
+              <Timer size={13} /> {formatPlayTime(i.totalPlayMs)}
             </p>
             <div className="card__actions">
               <button className="btn btn-accent" onClick={() => playNow(i.id)}>
@@ -101,7 +134,24 @@ export function InstancesScreen(): React.JSX.Element {
               </button>
               <button
                 className="btn btn-icon"
+                aria-label={t("instances.manage")}
+                title={t("instances.manage")}
+                onClick={() => setManaging(i)}
+              >
+                <Layers size={16} />
+              </button>
+              <button
+                className="btn btn-icon"
+                aria-label={t("instances.clone")}
+                title={t("instances.clone")}
+                onClick={() => clone(i.id)}
+              >
+                <Copy size={16} />
+              </button>
+              <button
+                className="btn btn-icon"
                 aria-label={t("instances.open")}
+                title={t("instances.open")}
                 onClick={() => window.ordolith.instances.openFolder(i.id)}
               >
                 <FolderOpen size={16} />
@@ -109,6 +159,7 @@ export function InstancesScreen(): React.JSX.Element {
               <button
                 className="btn btn-icon"
                 aria-label={t("instances.export")}
+                title={t("instances.export")}
                 onClick={() => exportInstance(i.id)}
               >
                 <Download size={16} />
@@ -116,6 +167,7 @@ export function InstancesScreen(): React.JSX.Element {
               <button
                 className="btn btn-icon"
                 aria-label={t("common.remove")}
+                title={t("common.remove")}
                 onClick={() => remove(i.id)}
               >
                 <Trash2 size={16} />
@@ -137,8 +189,217 @@ export function InstancesScreen(): React.JSX.Element {
             }}
           />
         )}
+        {managing && (
+          <ManageInstanceDialog
+            instance={managing}
+            onClose={() => setManaging(null)}
+            onChanged={refreshInstances}
+          />
+        )}
       </AnimatePresence>
     </div>
+  )
+}
+
+function ManageInstanceDialog({
+  instance,
+  onClose,
+  onChanged,
+}: {
+  instance: Instance
+  onClose: () => void
+  onChanged: () => Promise<void>
+}): React.JSX.Element {
+  const { t } = useI18n()
+  const pushToast = useStore((s) => s.pushToast)
+  const [profiles, setProfiles] = useState<InstanceProfile[]>([])
+  const [activeId, setActiveId] = useState<string | undefined>(instance.activeProfileId)
+  const [newName, setNewName] = useState("")
+  const [busy, setBusy] = useState(false)
+  const [backups, setBackups] = useState<BackupEntry[]>([])
+
+  async function reload(): Promise<void> {
+    const [nextProfiles, nextBackups] = await Promise.all([
+      window.ordolith.instances.listProfiles(instance.id),
+      window.ordolith.backups.list(instance.id),
+    ])
+    setProfiles(nextProfiles)
+    setBackups(nextBackups)
+  }
+
+  useEffect(() => {
+    void reload()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instance.id])
+
+  async function createBackup(): Promise<void> {
+    setBusy(true)
+    try {
+      await window.ordolith.backups.create(instance.id)
+      await reload()
+      pushToast(t("backups.created"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function restoreBackup(id: string): Promise<void> {
+    setBusy(true)
+    try {
+      await window.ordolith.backups.restore(id)
+      pushToast(t("backups.restored"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function removeBackup(id: string): Promise<void> {
+    await window.ordolith.backups.remove(id)
+    await reload()
+  }
+
+  async function save(): Promise<void> {
+    if (!newName.trim()) return
+    setBusy(true)
+    try {
+      const profile = await window.ordolith.instances.saveProfile(instance.id, newName.trim())
+      setNewName("")
+      setActiveId(profile.id)
+      await reload()
+      await onChanged()
+      pushToast(t("profiles.saved"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function apply(profileId: string): Promise<void> {
+    setBusy(true)
+    try {
+      await window.ordolith.instances.applyProfile(instance.id, profileId)
+      setActiveId(profileId)
+      pushToast(t("profiles.applied"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function del(profileId: string): Promise<void> {
+    await window.ordolith.instances.deleteProfile(instance.id, profileId)
+    await reload()
+    await onChanged()
+  }
+
+  return (
+    <motion.div
+      className="modal-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="modal glass glass-strong"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.98 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal__head">
+          <h3 className="modal__title">
+            <Layers size={18} /> {t("profiles.title")}
+          </h3>
+          <p className="panel__desc">{t("profiles.subtitle", { name: instance.name })}</p>
+        </div>
+
+        <div className="field">
+          <label htmlFor="profile-name">{t("profiles.newLabel")}</label>
+          <div className="inline-form">
+            <input
+              id="profile-name"
+              className="input"
+              placeholder={t("profiles.namePlaceholder")}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
+            <button className="btn btn-accent" onClick={save} disabled={busy || !newName.trim()}>
+              <Save size={16} /> {t("profiles.save")}
+            </button>
+          </div>
+        </div>
+
+        <div className="profile-list">
+          {profiles.length === 0 && <p className="empty-hint">{t("profiles.empty")}</p>}
+          {profiles.map((p) => (
+            <div key={p.id} className={`profile-row ${activeId === p.id ? "is-active" : ""}`}>
+              <div className="profile-row__info">
+                <span className="profile-row__name">{p.name}</span>
+                <span className="profile-row__meta">{t("profiles.modCount", { n: p.enabled.length })}</span>
+              </div>
+              <div className="profile-row__actions">
+                <button className="btn btn-sm" onClick={() => apply(p.id)} disabled={busy}>
+                  {activeId === p.id ? t("profiles.active") : t("profiles.apply")}
+                </button>
+                <button
+                  className="btn btn-icon btn-sm"
+                  aria-label={t("common.remove")}
+                  onClick={() => del(p.id)}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="field">
+          <div className="field__head">
+            <label>
+              <Archive size={15} /> {t("backups.title")}
+            </label>
+            <button className="btn btn-sm" onClick={createBackup} disabled={busy}>
+              <Save size={14} /> {t("backups.create")}
+            </button>
+          </div>
+          <p className="panel__desc">{t("backups.desc")}</p>
+          <div className="profile-list">
+            {backups.length === 0 && <p className="empty-hint">{t("backups.empty")}</p>}
+            {backups.map((b) => (
+              <div key={b.id} className="profile-row">
+                <div className="profile-row__info">
+                  <span className="profile-row__name">
+                    {new Date(b.createdAt).toLocaleString()}
+                  </span>
+                  <span className="profile-row__meta">{formatBytes(b.size)}</span>
+                </div>
+                <div className="profile-row__actions">
+                  <button className="btn btn-sm" onClick={() => restoreBackup(b.id)} disabled={busy}>
+                    <RotateCcw size={14} /> {t("backups.restore")}
+                  </button>
+                  <button
+                    className="btn btn-icon btn-sm"
+                    aria-label={t("common.remove")}
+                    onClick={() => removeBackup(b.id)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="modal__actions">
+          <button className="btn btn-ghost" onClick={() => window.ordolith.backups.openFolder()}>
+            <FolderOpen size={15} /> {t("backups.openFolder")}
+          </button>
+          <button className="btn btn-ghost" onClick={onClose}>
+            {t("common.close")}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

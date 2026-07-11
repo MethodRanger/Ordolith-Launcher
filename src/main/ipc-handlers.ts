@@ -15,16 +15,37 @@ import {
 } from "./modules/auth.js"
 import { getManifest } from "./modules/versions.js"
 import {
+  applyProfile,
+  cloneInstance,
   createInstance,
+  deleteProfile,
   getInstance,
   listInstances,
+  listProfiles,
+  purgeInstanceDir,
   removeInstance,
+  saveProfile,
   updateInstance,
 } from "./modules/instances.js"
 import { addServer, listServers, pingServer, removeServer } from "./modules/servers.js"
 import { launchGame, stopGame } from "./modules/launcher.js"
 import { store } from "./store.js"
-import { installContent, listInstalled, removeContent, searchContent, toggleContent } from "./modules/content.js"
+import {
+  checkUpdates,
+  getRecommended,
+  installContent,
+  listInstalled,
+  removeContent,
+  resolveDependencies,
+  searchContent,
+  toggleContent,
+  updateContent,
+} from "./modules/content.js"
+import { listFavorites, toggleFavorite } from "./modules/favorites.js"
+import { clearSessions, listSessions } from "./modules/sessions.js"
+import { listScreenshots, removeScreenshot, revealScreenshot } from "./modules/screenshots.js"
+import { createBackup, listBackups, openBackupsFolder, removeBackup, restoreBackup } from "./modules/backups.js"
+import { getCrashReport } from "./crash-window.js"
 import { installModpack, searchModpacks } from "./modules/modpacks.js"
 import { discoverJava, downloadRecommendedJava } from "./modules/java-runtimes.js"
 import { defaultExportName, exportInstance, importInstance } from "./modules/archives.js"
@@ -89,7 +110,16 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.instances.list, () => listInstances())
   ipcMain.handle(IPC.instances.create, (_e, input: CreateInstanceInput) => createInstance(input))
   ipcMain.handle(IPC.instances.update, (_e, id: string, patch) => updateInstance(id, patch))
-  ipcMain.handle(IPC.instances.remove, (_e, id: string) => removeInstance(id))
+  ipcMain.handle(IPC.instances.remove, (_e, id: string) => {
+    const instance = getInstance(id)
+    removeInstance(id)
+    if (instance) purgeInstanceDir(instance.dirName)
+  })
+  ipcMain.handle(IPC.instances.clone, (_e, id: string, name: string) => cloneInstance(id, name))
+  ipcMain.handle(IPC.instances.listProfiles, (_e, id: string) => listProfiles(id))
+  ipcMain.handle(IPC.instances.saveProfile, (_e, id: string, name: string) => saveProfile(id, name))
+  ipcMain.handle(IPC.instances.applyProfile, (_e, id: string, profileId: string) => applyProfile(id, profileId))
+  ipcMain.handle(IPC.instances.deleteProfile, (_e, id: string, profileId: string) => deleteProfile(id, profileId))
   ipcMain.handle(IPC.instances.chooseDirectory, async (_e, id: string) => {
     const result = await dialog.showOpenDialog({ properties: ["openDirectory", "createDirectory"] })
     if (result.canceled) return null
@@ -122,6 +152,33 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.content.listInstalled, (_e, instanceId, type) => listInstalled(instanceId, type))
   ipcMain.handle(IPC.content.toggle, (_e, instanceId, type, fileName, enabled) => toggleContent(instanceId, type, fileName, enabled))
   ipcMain.handle(IPC.content.remove, (_e, instanceId, type, fileName) => removeContent(instanceId, type, fileName))
+  ipcMain.handle(IPC.content.resolveDependencies, (_e, instanceId, project) => resolveDependencies(instanceId, project))
+  ipcMain.handle(IPC.content.checkUpdates, (_e, instanceId, type) => checkUpdates(instanceId, type))
+  ipcMain.handle(IPC.content.update, (_e, instanceId, type, fileName) => updateContent(instanceId, type, fileName))
+  ipcMain.handle(IPC.content.recommended, (_e, type, loader, gameVersion) => getRecommended(type, loader, gameVersion))
+
+  /* Favorites ------------------------------------------------------- */
+  ipcMain.handle(IPC.favorites.list, () => listFavorites())
+  ipcMain.handle(IPC.favorites.toggle, (_e, project, type) => toggleFavorite(project, type))
+
+  /* Sessions -------------------------------------------------------- */
+  ipcMain.handle(IPC.sessions.list, () => listSessions())
+  ipcMain.handle(IPC.sessions.clear, () => clearSessions())
+
+  /* Screenshots ----------------------------------------------------- */
+  ipcMain.handle(IPC.screenshots.list, (_e, instanceId) => listScreenshots(instanceId))
+  ipcMain.on(IPC.screenshots.reveal, (_e, path: string) => revealScreenshot(path))
+  ipcMain.handle(IPC.screenshots.remove, (_e, instanceId, name) => removeScreenshot(instanceId, name))
+
+  /* Backups --------------------------------------------------------- */
+  ipcMain.handle(IPC.backups.create, (_e, instanceId) => createBackup(instanceId))
+  ipcMain.handle(IPC.backups.list, (_e, instanceId) => listBackups(instanceId))
+  ipcMain.handle(IPC.backups.restore, (_e, id) => restoreBackup(id))
+  ipcMain.handle(IPC.backups.remove, (_e, id) => removeBackup(id))
+  ipcMain.on(IPC.backups.openFolder, () => openBackupsFolder())
+
+  /* Crash assistant ------------------------------------------------- */
+  ipcMain.handle(IPC.crash.getData, () => getCrashReport())
 
   /* Modpacks -------------------------------------------------------- */
   ipcMain.handle(IPC.modpacks.search, (_e, query) => searchModpacks(query))
@@ -174,6 +231,9 @@ export function registerIpcHandlers(): void {
           },
           onLog: (ev) => {
             if (!sender.isDestroyed()) sender.send(IPC.launcher.onLog, ev)
+          },
+          onResource: (sample) => {
+            if (!sender.isDestroyed()) sender.send(IPC.resources.onSample, sample)
           },
         },
       )

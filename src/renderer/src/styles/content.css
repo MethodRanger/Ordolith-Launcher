@@ -585,3 +585,366 @@ textarea.input {
   font-size: 12px;
   margin-bottom: 8px;
 }
+
+/* ================================================================== */
+/* Small shared helpers                                               */
+/* ================================================================== */
+.btn-sm {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+.btn-icon.btn-sm {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.badge-danger {
+  background: rgba(255, 107, 107, 0.14);
+  color: var(--danger);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+.empty-hint {
+  color: var(--faint);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.card__sub-sep {
+  color: var(--faint);
+  margin: 0 4px;
+}
+
+/* ================================================================== */
+/* Instance mod profiles (Manage dialog)                              */
+/* ================================================================== */
+.field__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.field__head label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 44vh;
+  overflow-y: auto;
+}
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+.profile-row.is-active {
+  border-color: rgba(76, 200, 255, 0.35);
+  background: var(--accent-soft);
+}
+.profile-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.profile-row__name {
+  font-weight: 600;
+}
+.profile-row__meta {
+  font-size: 12px;
+  color: var(--faint);
+}
+.profile-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================================================================== */
+/* Play — resource monitor, session history, screenshots             */
+/* ================================================================== */
+.resmon {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.resmon__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.resmon__stat svg {
+  color: var(--accent);
+}
+.play-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.session-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+}
+.session-row__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.session-row__dot.is-crash {
+  background: var(--danger);
+}
+.session-row__date {
+  flex: 1;
+  color: var(--muted);
+}
+.session-row__dur {
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.shot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.shot {
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s var(--spring), border-color 0.2s var(--spring);
+}
+.shot:hover {
+  transform: scale(1.03);
+  border-color: var(--accent);
+}
+.shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================================================================== */
+/* Settings — theme picker                                            */
+/* ================================================================== */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.theme-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text);
+  transition: border-color 0.2s var(--spring), background 0.2s var(--spring);
+}
+.theme-opt:hover {
+  background: var(--glass-hover);
+}
+.theme-opt.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.theme-opt__swatch {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.theme-opt__name {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+.theme-opt__check {
+  color: var(--accent);
+}
+
+/* ================================================================== */
+/* Content — favorite toggle, recommendations, dependency prompt      */
+/* ================================================================== */
+.content-card__fav {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--muted);
+  transition: color 0.2s var(--spring), background 0.2s var(--spring);
+}
+.content-card__fav:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text);
+}
+.content-card__fav.is-active {
+  color: #ffb454;
+}
+.content-card {
+  position: relative;
+}
+.browser__recommended {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.browser__section {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.browser__section svg {
+  color: var(--accent);
+}
+.dep-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dep-list__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.2);
+}
+.dep-list__icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 9px;
+}
+.dep-list__name {
+  flex: 1;
+  font-weight: 500;
+  min-width: 0;
+}
+
+/* ================================================================== */
+/* Modpack browser wrapper                                            */
+/* ================================================================== */
+.modpack-browser {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ================================================================== */
+/* Crash assistant window                                             */
+/* ================================================================== */
+.shell--crash {
+  padding: 20px;
+  gap: 16px;
+  overflow-y: auto;
+}
+.crash__banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+}
+.crash__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 16px;
+  background: rgba(255, 107, 107, 0.14);
+  color: var(--danger);
+}
+.crash__sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+.crash__hints {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.crash__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.55;
+  color: var(--text);
+}
+.crash__hint-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.crash__log {
+  margin: 0;
+  max-height: 320px;
+  overflow: auto;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
