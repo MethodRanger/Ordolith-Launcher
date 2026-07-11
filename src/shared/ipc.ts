@@ -1,13 +1,13 @@
 import type {
   Account, AppInfo, AppLocale, ArchiveResult, BackupEntry, ContentProject, ContentSearchQuery, ContentSearchResult,
-  ContentType, ContentUpdate, CrashReport, FavoriteContent, GameLogLine, InstalledContent, Instance, InstanceProfile, InstanceSettings, JavaRuntime,
+  ContentType, ContentUpdate, CrashReport, DiagnosticsReport, FavoriteContent, GameLogLine, InstalledContent, Instance, InstanceProfile, InstanceSettings, JavaRuntime,
   LaunchResult, LauncherSettings, ModLoader, ModpackInstallProgress, ModpackProject, ModpackSearchQuery,
   ModpackSearchResult, PlaySession, ProgressEvent, ResolvedDependency, ResourceSample, SavedServer, Screenshot, ServerStatus,
   SystemMemoryInfo, ThemeId, VersionManifest, VersionSummary,
 } from "./types"
 
 export const IPC = {
-  app: { getInfo: "app:getInfo", openDataDir: "app:openDataDir", getSettings: "app:getSettings", saveSettings: "app:saveSettings", memory: "app:memory" },
+  app: { getInfo: "app:getInfo", openDataDir: "app:openDataDir", getSettings: "app:getSettings", saveSettings: "app:saveSettings", memory: "app:memory", diagnostics: "app:diagnostics", exportSettings: "app:exportSettings", importSettings: "app:importSettings" },
   window: { minimize: "window:minimize", maximizeToggle: "window:maximizeToggle", close: "window:close", isMaximized: "window:isMaximized" },
   accounts: { list: "accounts:list", loginOffline: "accounts:loginOffline", loginMicrosoft: "accounts:loginMicrosoft", remove: "accounts:remove", logout: "accounts:logout", setActive: "accounts:setActive", chooseAvatar: "accounts:chooseAvatar" },
   versions: { list: "versions:list", refresh: "versions:refresh" },
@@ -39,6 +39,9 @@ export interface OrdolithApi {
     getInfo: () => Promise<AppInfo>; openDataDir: () => void
     getSettings: () => Promise<LauncherSettings>; saveSettings: (settings: LauncherSettings) => Promise<LauncherSettings>
     memory: () => Promise<SystemMemoryInfo>
+    diagnostics: () => Promise<DiagnosticsReport>
+    exportSettings: () => Promise<ArchiveResult>
+    importSettings: () => Promise<ArchiveResult>
   }
   window: { minimize: () => void; maximizeToggle: () => void; close: () => void; isMaximized: () => Promise<boolean> }
   accounts: {
@@ -107,4 +110,4 @@ export interface OrdolithApi {
   }
 }
 
-export type { Account, AppInfo, AppLocale, ArchiveResult, BackupEntry, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, ContentUpdate, CrashReport, FavoriteContent, GameLogLine, InstalledContent, Instance, InstanceProfile, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ModpackInstallProgress, ModpackProject, ModpackSearchQuery, ModpackSearchResult, PlaySession, ProgressEvent, ResolvedDependency, ResourceSample, SavedServer, Screenshot, ServerStatus, SystemMemoryInfo, ThemeId, VersionManifest, VersionSummary }
+export type { Account, AppInfo, AppLocale, ArchiveResult, BackupEntry, ContentProject, ContentSearchQuery, ContentSearchResult, ContentType, ContentUpdate, CrashReport, DiagnosticsReport, FavoriteContent, GameLogLine, InstalledContent, Instance, InstanceProfile, InstanceSettings, JavaRuntime, LaunchResult, LauncherSettings, ModLoader, ModpackInstallProgress, ModpackProject, ModpackSearchQuery, ModpackSearchResult, PlaySession, ProgressEvent, ResolvedDependency, ResourceSample, SavedServer, Screenshot, ServerStatus, SystemMemoryInfo, ThemeId, VersionManifest, VersionSummary }

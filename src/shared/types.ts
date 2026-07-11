@@ -318,6 +318,22 @@ export interface SystemMemoryInfo {
   freeMb: number
 }
 
+/** A single diagnostic check result surfaced in Settings. */
+export interface DiagnosticItem {
+  id: string
+  /** i18n key for the human-readable label. */
+  labelKey: string
+  /** Pre-formatted value (already localized where needed). */
+  value: string
+  /** Severity signal used to colour the row. */
+  status: "ok" | "warn" | "error" | "info"
+}
+
+export interface DiagnosticsReport {
+  generatedAt: number
+  items: DiagnosticItem[]
+}
+
 export interface ArchiveResult {
   ok: boolean
   path?: string

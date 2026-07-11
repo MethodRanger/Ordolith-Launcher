@@ -7,6 +7,8 @@ const api: OrdolithApi = {
     getInfo: () => ipcRenderer.invoke(IPC.app.getInfo), openDataDir: () => ipcRenderer.send(IPC.app.openDataDir),
     getSettings: () => ipcRenderer.invoke(IPC.app.getSettings), saveSettings: (settings) => ipcRenderer.invoke(IPC.app.saveSettings, settings),
     memory: () => ipcRenderer.invoke(IPC.app.memory),
+    diagnostics: () => ipcRenderer.invoke(IPC.app.diagnostics),
+    exportSettings: () => ipcRenderer.invoke(IPC.app.exportSettings), importSettings: () => ipcRenderer.invoke(IPC.app.importSettings),
   },
   window: {
     minimize: () => ipcRenderer.send(IPC.window.minimize), maximizeToggle: () => ipcRenderer.send(IPC.window.maximizeToggle),

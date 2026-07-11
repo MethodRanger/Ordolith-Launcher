@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, ServerCog, ShieldAlert, UserPlus } from "lucide-react"
-import type { AppInfo, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
+import { Activity, Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, RefreshCw, ServerCog, ShieldAlert, Upload, UserPlus } from "lucide-react"
+import type { AppInfo, DiagnosticsReport, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
 import { accountAvatar, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
 
@@ -32,6 +32,34 @@ export function SettingsScreen(): React.JSX.Element {
   const [runtimes, setRuntimes] = useState<JavaRuntime[] | null>(null)
   const [memory, setMemory] = useState<SystemMemoryInfo | null>(null)
   const [jvmArgs, setJvmArgs] = useState("")
+  const [diagnostics, setDiagnostics] = useState<DiagnosticsReport | null>(null)
+  const [diagBusy, setDiagBusy] = useState(false)
+
+  async function runDiagnostics(): Promise<void> {
+    setDiagBusy(true)
+    try {
+      setDiagnostics(await window.ordolith.app.diagnostics())
+    } finally {
+      setDiagBusy(false)
+    }
+  }
+
+  async function exportSettingsFile(): Promise<void> {
+    const res = await window.ordolith.app.exportSettings()
+    if (res.ok) pushToast(t("sync.exported"), "success")
+    else if (res.error !== "cancelled") pushToast(t("toast.error"), "error")
+  }
+
+  async function importSettingsFile(): Promise<void> {
+    const res = await window.ordolith.app.importSettings()
+    if (res.ok) {
+      await useStore.getState().refreshSettings()
+      await useStore.getState().refreshServers()
+      pushToast(t("sync.imported"), "success")
+    } else if (res.error !== "cancelled") {
+      pushToast(t("toast.error"), "error")
+    }
+  }
 
   useEffect(() => {
     window.ordolith.app.getInfo().then(setInfo)
@@ -318,6 +346,50 @@ export function SettingsScreen(): React.JSX.Element {
           />
           {t("settings.closeToTray")}
         </label>
+      </section>
+
+      {/* Diagnostics ------------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <Activity size={16} /> {t("diagnostics.title")}
+          </h3>
+          <button className="btn" onClick={runDiagnostics} disabled={diagBusy}>
+            <RefreshCw size={16} /> {diagBusy ? t("diagnostics.running") : t("diagnostics.run")}
+          </button>
+        </div>
+        <p className="panel__desc">{t("diagnostics.desc")}</p>
+        {diagnostics ? (
+          <div className="diag-list">
+            {diagnostics.items.map((item) => (
+              <div key={item.id} className="diag-row">
+                <span className={`diag-row__dot is-${item.status}`} aria-hidden />
+                <span className="diag-row__label">{t(item.labelKey)}</span>
+                <span className="diag-row__value">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="panel__empty">{t("diagnostics.empty")}</p>
+        )}
+      </section>
+
+      {/* Backup & sync ----------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <HardDrive size={16} /> {t("sync.title")}
+          </h3>
+        </div>
+        <p className="panel__desc">{t("sync.desc")}</p>
+        <div className="about-links">
+          <button className="btn" onClick={exportSettingsFile}>
+            <Download size={16} /> {t("sync.export")}
+          </button>
+          <button className="btn" onClick={importSettingsFile}>
+            <Upload size={16} /> {t("sync.import")}
+          </button>
+        </div>
       </section>
 
       {/* Data folder ------------------------------------------------- */}

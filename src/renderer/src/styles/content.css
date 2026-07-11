@@ -703,6 +703,48 @@ textarea.input {
   margin: 0 4px;
 }
 
+/* ---- Diagnostics list ------------------------------------------- */
+.diag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.diag-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+}
+.diag-row__dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: var(--faint);
+}
+.diag-row__dot.is-ok { background: var(--success); }
+.diag-row__dot.is-warn { background: #fbbf24; }
+.diag-row__dot.is-error { background: var(--danger); }
+.diag-row__dot.is-info { background: var(--accent-2, var(--accent)); }
+.diag-row__label {
+  color: var(--muted);
+  min-width: 140px;
+}
+.diag-row__value {
+  margin-left: auto;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
 /* ================================================================== */
 /* Instance mod profiles (Manage dialog)                              */
 /* ================================================================== */
