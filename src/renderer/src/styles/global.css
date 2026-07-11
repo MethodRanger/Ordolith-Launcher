@@ -1,44 +1,57 @@
 @import "@fontsource-variable/inter";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
 
 /* ================================================================== */
 /* Ordolith — "Liquid Glass" design system                            */
 /* ================================================================== */
 
 :root {
-  /* Base surfaces */
-  --bg-0: #090b10;
-  --bg-1: #0e1118;
+  /* Base surfaces — deep engineering-studio navy */
+  --bg-0: #05080f;
+  --bg-1: #070b14;
 
-  /* Glass fills (translucent, blurred over the ambient backdrop) */
-  --glass: rgba(22, 27, 38, 0.55);
-  --glass-strong: rgba(28, 34, 48, 0.72);
-  --glass-hover: rgba(38, 46, 64, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-strong: rgba(255, 255, 255, 0.14);
-  --glass-highlight: rgba(255, 255, 255, 0.06);
+  /* Panel fills (subtle translucent slabs over the gridded backdrop) */
+  --glass: rgba(15, 21, 34, 0.66);
+  --glass-strong: rgba(18, 25, 40, 0.82);
+  --glass-hover: rgba(26, 35, 54, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-strong: rgba(52, 211, 153, 0.32);
+  --glass-highlight: rgba(255, 255, 255, 0.045);
 
   /* Text */
-  --text: #eef1f7;
-  --muted: #9aa3b5;
-  --faint: #6b7488;
+  --text: #f3f6fc;
+  --muted: #8593a8;
+  --faint: #5c6a80;
 
-  /* Accent (cyan-blue) */
-  --accent: #4cc8ff;
-  --accent-strong: #2ba7e6;
-  --accent-soft: rgba(76, 200, 255, 0.14);
-  --danger: #ff6b6b;
-  --success: #41d1a7;
+  /* Accent (emerald primary + blue secondary, matching the studio palette) */
+  --accent: #34d399;
+  --accent-strong: #10b981;
+  --accent-soft: rgba(52, 211, 153, 0.13);
+  --accent-2: #60a5fa;
+  --accent-2-soft: rgba(96, 165, 250, 0.14);
+  --on-accent: #04150d;
+  --danger: #f87171;
+  --success: #34d399;
+
+  /* Fonts */
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", monospace;
 
   /* Geometry */
-  --r-sm: 12px;
-  --r-md: 16px;
-  --r-lg: 22px;
-  --r-xl: 28px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
 
   /* Elevation */
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 14px 44px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 26px 74px rgba(0, 0, 0, 0.62);
+  --glow: 0 0 0 1px rgba(52, 211, 153, 0.35), 0 12px 34px rgba(16, 185, 129, 0.28);
+
+  /* Grid backdrop */
+  --grid-line: rgba(255, 255, 255, 0.028);
+  --grid-size: 44px;
 
   /* Motion */
   --spring: cubic-bezier(0.16, 1, 0.3, 1);
@@ -100,16 +113,28 @@ body {
   overflow: hidden;
 }
 
-/* Ambient backdrop — the light source the glass refracts. */
+/* Ambient backdrop — gridded engineering canvas with emerald/blue light. */
 .app-backdrop {
   position: fixed;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(120% 80% at 12% -10%, rgba(76, 200, 255, 0.18), transparent 55%),
-    radial-gradient(90% 70% at 100% 0%, rgba(65, 209, 167, 0.12), transparent 50%),
-    radial-gradient(80% 90% at 80% 110%, rgba(43, 91, 168, 0.16), transparent 55%),
+    radial-gradient(110% 70% at 6% -8%, rgba(52, 211, 153, 0.14), transparent 52%),
+    radial-gradient(90% 70% at 100% 0%, rgba(96, 165, 250, 0.1), transparent 50%),
+    radial-gradient(80% 90% at 85% 112%, rgba(16, 185, 129, 0.1), transparent 55%),
     linear-gradient(180deg, var(--bg-1), var(--bg-0));
+}
+/* Faint blueprint grid layered above the glow. */
+.app-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 55%, transparent 100%);
 }
 
 h1,
@@ -144,8 +169,8 @@ button {
 
 .glass {
   background: var(--glass);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid var(--glass-border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-md), inset 0 1px 0 var(--glass-highlight);
@@ -189,13 +214,14 @@ button {
 .btn-accent {
   background: linear-gradient(180deg, var(--accent), var(--accent-strong));
   border-color: transparent;
-  color: #04121b;
+  color: var(--on-accent);
   font-weight: 600;
-  box-shadow: 0 8px 24px rgba(76, 200, 255, 0.28);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .btn-accent:hover {
   background: linear-gradient(180deg, var(--accent), var(--accent-strong));
-  filter: brightness(1.06);
+  filter: brightness(1.07);
+  box-shadow: 0 12px 34px rgba(16, 185, 129, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-ghost {
@@ -270,12 +296,93 @@ select.input option {
   letter-spacing: 0.03em;
   background: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid rgba(76, 200, 255, 0.25);
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
 }
 .badge-muted {
   background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
   border-color: var(--glass-border);
+}
+
+/* Eyebrow — small mono label with a pulsing dot (studio motif). */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Emerald keyword highlight for headings. */
+.hl {
+  color: var(--accent);
+}
+
+/* Terminal-style card with traffic-light dots. */
+.terminal {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.9;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--glass-border);
+  background: rgba(6, 10, 18, 0.72);
+  overflow: hidden;
+}
+.terminal__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--faint);
+}
+.terminal__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+.terminal__dot--r {
+  background: #ff5f57;
+}
+.terminal__dot--y {
+  background: #febc2e;
+}
+.terminal__dot--g {
+  background: #28c840;
+}
+.terminal__bar span {
+  margin-left: 8px;
+  letter-spacing: 0.04em;
+}
+.terminal__body {
+  padding: 14px 18px 18px;
+}
+.terminal__line {
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+.terminal__line b {
+  color: var(--accent);
+  font-weight: 500;
+}
+.terminal__line i {
+  color: var(--accent-2);
+  font-style: normal;
 }
 
 .no-drag {
@@ -430,7 +537,7 @@ select.input option {
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: #04121b;
+  color: var(--on-accent);
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   background-size: cover;
   background-position: center;
@@ -467,11 +574,13 @@ select.input option {
   margin-bottom: 20px;
 }
 .page-head h2 {
-  font-size: 26px;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 .page-head p {
   color: var(--muted);
-  margin: 4px 0 0;
+  margin: 6px 0 0;
 }
 
 /* ================================================================== */
@@ -583,7 +692,7 @@ select.input option {
   height: 46px;
   border-radius: 14px;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  box-shadow: 0 0 30px rgba(76, 200, 255, 0.6);
+  box-shadow: 0 0 30px rgba(52, 211, 153, 0.6);
   animation: pulse 1.4s var(--spring) infinite;
 }
 @keyframes pulse {
@@ -645,8 +754,8 @@ select.input option {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(60% 120% at 85% 0%, rgba(76, 200, 255, 0.28), transparent 60%),
-    radial-gradient(50% 80% at 0% 100%, rgba(65, 209, 167, 0.18), transparent 60%);
+    radial-gradient(60% 120% at 85% 0%, rgba(52, 211, 153, 0.26), transparent 60%),
+    radial-gradient(50% 80% at 0% 100%, rgba(96, 165, 250, 0.16), transparent 60%);
   pointer-events: none;
 }
 .hero__body {
@@ -704,7 +813,7 @@ select.input option {
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--accent-strong), var(--accent));
-  box-shadow: 0 0 16px rgba(76, 200, 255, 0.6);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.6);
 }
 .progress__detail {
   margin: 8px 0 0;
@@ -812,6 +921,13 @@ select.input option {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  transition: transform 0.25s var(--spring), border-color 0.25s var(--spring),
+    box-shadow 0.25s var(--spring);
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--glass-highlight);
 }
 .card__top {
   display: flex;
@@ -974,7 +1090,7 @@ select.input option {
   background: rgba(0, 0, 0, 0.2);
 }
 .account-row.is-active {
-  border-color: rgba(76, 200, 255, 0.35);
+  border-color: var(--glass-border-strong);
 }
 .account-row__avatar {
   width: 40px;
@@ -984,7 +1100,7 @@ select.input option {
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: #04121b;
+  color: var(--on-accent);
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   background-size: cover;
   background-position: center;

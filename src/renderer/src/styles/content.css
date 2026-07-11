@@ -147,7 +147,7 @@
 }
 .wizard__mode.is-active {
   border-color: var(--accent);
-  background: rgba(76, 200, 255, 0.08);
+  background: var(--accent-soft);
 }
 .wizard__mode > svg {
   display: flex;
@@ -158,10 +158,10 @@
   padding: 9px;
   border-radius: 12px;
   color: var(--accent);
-  background: rgba(76, 200, 255, 0.12);
+  background: var(--accent-soft);
 }
 .wizard__mode.is-active > svg {
-  color: var(--bg);
+  color: var(--on-accent);
   background: var(--accent);
 }
 .wizard__mode-title {
@@ -646,7 +646,7 @@ textarea.input {
   background: rgba(0, 0, 0, 0.2);
 }
 .profile-row.is-active {
-  border-color: rgba(76, 200, 255, 0.35);
+  border-color: var(--glass-border-strong);
   background: var(--accent-soft);
 }
 .profile-row__info {

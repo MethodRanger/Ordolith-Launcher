@@ -9,10 +9,27 @@ export type ChangeKind = "added" | "changed" | "fixed" | "removed"
 
 export interface ChangelogEntry {
   version: string
+  /** Major line this release belongs to, e.g. "1.21" for 1.21.5. */
+  major: string
   date: string
   title: L
   summary: L
   changes: Partial<Record<ChangeKind, LList>>
+}
+
+/** Derive the major line ("1.21") from a full version ("1.21.5"). */
+export function majorOf(version: string): string {
+  const parts = version.split(".")
+  return parts.length >= 2 ? `${parts[0]}.${parts[1]}` : version
+}
+
+/** All major lines present in the changelog, newest first. */
+export function majorLines(): string[] {
+  const seen: string[] = []
+  for (const entry of CHANGELOG) {
+    if (!seen.includes(entry.major)) seen.push(entry.major)
+  }
+  return seen
 }
 
 /**
@@ -22,7 +39,80 @@ export interface ChangelogEntry {
  */
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.21.5",
+    major: "1.21",
+    date: "2025-03-25",
+    title: { en: "Spring to Life", ru: "Весеннее пробуждение", es: "Primavera Viva", zh: "生机盎然" },
+    summary: {
+      en: "Livelier biomes with new mob variants and ambient life.",
+      ru: "Более живые биомы с новыми вариантами мобов и окружением.",
+      es: "Biomas más vivos con nuevas variantes de mobs y vida ambiental.",
+      zh: "更具生机的生物群系，加入新的生物变种与环境生物。",
+    },
+    changes: {
+      added: {
+        en: ["Cow, pig and chicken biome variants", "Wolf sound and spawn-egg variety", "Falling leaf particles and bushes", "Firefly bushes and cactus flowers"],
+        ru: ["Варианты коров, свиней и куриц по биомам", "Разнообразие звуков и яиц призыва волков", "Частицы падающих листьев и кусты", "Кусты со светлячками и цветы кактуса"],
+        es: ["Variantes de vaca, cerdo y gallina por bioma", "Variedad de sonidos y huevos de lobo", "Partículas de hojas cayendo y arbustos", "Arbustos de luciérnagas y flores de cactus"],
+        zh: ["按生物群系区分的牛、猪、鸡变种", "狼的音效与刷怪蛋多样化", "落叶粒子与灌木", "萤火虫灌木与仙人掌花"],
+      },
+      changed: {
+        en: ["Biome-specific mob textures and behavior"],
+        ru: ["Текстуры и поведение мобов зависят от биома"],
+        es: ["Texturas y comportamiento de mobs según el bioma"],
+        zh: ["生物材质与行为随生物群系变化"],
+      },
+    },
+  },
+  {
+    version: "1.21.4",
+    major: "1.21",
+    date: "2024-12-03",
+    title: { en: "The Garden Awakens", ru: "Пробуждение сада", es: "El Jardín Despierta", zh: "苍白庭园" },
+    summary: {
+      en: "The eerie pale garden biome and the creaking mob.",
+      ru: "Жуткий биом бледного сада и моб скрипун.",
+      es: "El inquietante bioma del jardín pálido y el mob crujiente.",
+      zh: "诡异的苍白庭园生物群系与嘎枝怪。",
+    },
+    changes: {
+      added: {
+        en: ["Pale garden biome with pale oak and moss", "The creaking and creaking heart block", "Pale hanging moss and eyeblossom flower", "Resin blocks and bricks"],
+        ru: ["Биом бледного сада с бледным дубом и мхом", "Скрипун и блок скрипящего сердца", "Свисающий бледный мох и цветок-глаз", "Смоляные блоки и кирпичи"],
+        es: ["Bioma de jardín pálido con roble y musgo pálidos", "El crujiente y el bloque de corazón crujiente", "Musgo colgante pálido y flor ojiflor", "Bloques y ladrillos de resina"],
+        zh: ["带苍白橡木与苔藓的苍白庭园", "嘎枝怪与嘎吱心方块", "苍白垂藤与眼眸花", "树脂块与树脂砖"],
+      },
+    },
+  },
+  {
+    version: "1.21.2",
+    major: "1.21",
+    date: "2024-10-22",
+    title: { en: "Bundles of Bravery", ru: "Связки храбрости", es: "Fardos de Valentía", zh: "收纳勇气" },
+    summary: {
+      en: "Bundles for storage plus pale-wood preparation.",
+      ru: "Связки для хранения и подготовка бледной древесины.",
+      es: "Fardos para almacenar y preparación de madera pálida.",
+      zh: "用于收纳的收纳袋，以及苍白木材的前期准备。",
+    },
+    changes: {
+      added: {
+        en: ["Bundles in 16 dye colors for compact storage", "New advancements for bundle usage"],
+        ru: ["Связки 16 цветов для компактного хранения", "Новые достижения за использование связок"],
+        es: ["Fardos en 16 colores para almacenaje compacto", "Nuevos logros por usar fardos"],
+        zh: ["16 种染色收纳袋，便于紧凑存储", "使用收纳袋的新进度"],
+      },
+      fixed: {
+        en: ["Numerous stability and performance fixes"],
+        ru: ["Множество исправлений стабильности и производительности"],
+        es: ["Numerosas correcciones de estabilidad y rendimiento"],
+        zh: ["大量稳定性与性能修复"],
+      },
+    },
+  },
+  {
     version: "1.21",
+    major: "1.21",
     date: "2024-06-13",
     title: { en: "Tricky Trials", ru: "Коварные испытания", es: "Pruebas Peligrosas", zh: "诡异的试炼" },
     summary: {
@@ -53,7 +143,34 @@ export const CHANGELOG: ChangelogEntry[] = [
     },
   },
   {
+    version: "1.20.5",
+    major: "1.20",
+    date: "2024-04-23",
+    title: { en: "Armored Paws", ru: "Бронированные лапы", es: "Patas Blindadas", zh: "装甲爪牙" },
+    summary: {
+      en: "Armadillos, wolf armor and eight new wolf variants.",
+      ru: "Броненосцы, броня для волков и восемь новых вариантов волков.",
+      es: "Armadillos, armadura de lobo y ocho nuevas variantes de lobo.",
+      zh: "犰狳、狼铠以及八种新的狼变种。",
+    },
+    changes: {
+      added: {
+        en: ["Armadillos and armadillo scutes", "Wolf armor crafted from scutes", "Eight biome-based wolf variants"],
+        ru: ["Броненосцы и щитки броненосца", "Броня для волков из щитков", "Восемь вариантов волков по биомам"],
+        es: ["Armadillos y escudos de armadillo", "Armadura de lobo hecha con escudos", "Ocho variantes de lobo según bioma"],
+        zh: ["犰狳与犰狳鳞甲", "用鳞甲制作的狼铠", "八种基于生物群系的狼变种"],
+      },
+      changed: {
+        en: ["Data-driven item components for packs"],
+        ru: ["Компоненты предметов на основе данных для паков"],
+        es: ["Componentes de objetos basados en datos para paquetes"],
+        zh: ["面向数据包的数据驱动物品组件"],
+      },
+    },
+  },
+  {
     version: "1.20",
+    major: "1.20",
     date: "2023-06-07",
     title: { en: "Trails & Tales", ru: "Тропы и тайны", es: "Senderos y Relatos", zh: "征程与探索" },
     summary: {
@@ -85,6 +202,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
   {
     version: "1.19",
+    major: "1.19",
     date: "2022-06-07",
     title: { en: "The Wild Update", ru: "Дикое обновление", es: "La Actualización Salvaje", zh: "荒野更新" },
     summary: {
@@ -116,6 +234,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
   {
     version: "1.18",
+    major: "1.18",
     date: "2021-11-30",
     title: { en: "Caves & Cliffs II", ru: "Пещеры и скалы II", es: "Cuevas y Acantilados II", zh: "洞穴与山崖 II" },
     summary: {
@@ -147,6 +266,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
   {
     version: "1.17",
+    major: "1.17",
     date: "2021-06-08",
     title: { en: "Caves & Cliffs I", ru: "Пещеры и скалы I", es: "Cuevas y Acantilados I", zh: "洞穴与山崖 I" },
     summary: {
@@ -172,6 +292,7 @@ export const CHANGELOG: ChangelogEntry[] = [
   },
   {
     version: "1.16",
+    major: "1.16",
     date: "2020-06-23",
     title: { en: "Nether Update", ru: "Обновление Нижнего мира", es: "Actualización del Nether", zh: "下界更新" },
     summary: {

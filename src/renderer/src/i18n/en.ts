@@ -194,12 +194,18 @@ export const en = {
   news: {
     title: "What's new in Minecraft",
     subtitle: "Version highlights, newest first.",
+    eyebrow: "Release notes",
     searchPlaceholder: "Search updates",
     noResults: "No updates match your search.",
     added: "Added",
     changed: "Changed",
     fixed: "Fixed",
     removed: "Removed",
+    allVersions: "All versions",
+    filterLabel: "Version line",
+    lineHint: "{v} and its sub-versions",
+    releasesOne: "{n} release",
+    releasesMany: "{n} releases",
   },
   settings: {
     title: "Settings",
