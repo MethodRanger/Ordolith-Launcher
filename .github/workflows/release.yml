@@ -27,19 +27,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build & publish (Linux)
+      - name: Build app (electron-vite)
+        run: npm run build
+
+      - name: Publish (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: npx electron-builder --linux --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & publish (Windows)
+      - name: Publish (Windows)
         if: matrix.os == 'windows-latest'
         run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & publish (macOS)
+      - name: Publish (macOS)
         if: matrix.os == 'macos-latest'
         run: npx electron-builder --mac --publish always
         env:
