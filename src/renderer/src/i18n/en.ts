@@ -235,6 +235,9 @@ export const en = {
     openDataDir: "Open",
     about: "About",
     support: "Support panel",
+    sourceCode: "Source code",
+    openSource:
+      "Open-source Minecraft launcher focused on flexibility, offline play and clean instance management.",
     closeToTray: "Keep running in the system tray on close",
     appearance: "Appearance",
     themeDesc: "Choose an accent theme for the launcher interface.",
