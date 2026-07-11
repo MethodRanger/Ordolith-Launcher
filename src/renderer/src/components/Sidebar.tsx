@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Boxes, Gamepad2, Newspaper, PackageSearch, Server, Settings } from "lucide-react"
+import { BarChart3, Boxes, Gamepad2, Newspaper, PackageSearch, Server, Settings } from "lucide-react"
 import { accountAvatar, activeAccount, useStore, type View } from "../store/useStore"
 import { useI18n } from "../i18n"
 
@@ -9,6 +9,7 @@ const NAV: { id: View; key: string; icon: React.ComponentType<{ size?: number }>
   { id: "mods", key: "nav.mods", icon: PackageSearch },
   { id: "servers", key: "nav.servers", icon: Server },
   { id: "news", key: "nav.news", icon: Newspaper },
+  { id: "stats", key: "nav.stats", icon: BarChart3 },
   { id: "settings", key: "nav.settings", icon: Settings },
 ]
 

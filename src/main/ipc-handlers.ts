@@ -49,6 +49,8 @@ import { getCrashReport } from "./crash-window.js"
 import { installModpack, searchModpacks } from "./modules/modpacks.js"
 import { discoverJava, downloadRecommendedJava } from "./modules/java-runtimes.js"
 import { defaultExportName, exportInstance, importInstance } from "./modules/archives.js"
+import { collectDiagnostics } from "./modules/diagnostics.js"
+import { exportSettings, importSettings } from "./modules/settings-sync.js"
 
 /**
  * Registers all main-process IPC handlers. Called once during app startup.
@@ -72,6 +74,9 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC.app.getSettings, () => store.getSettings())
   ipcMain.handle(IPC.app.saveSettings, (_e, settings) => { store.saveSettings(settings); return settings })
   ipcMain.handle(IPC.app.memory, () => ({ totalMb: Math.floor(totalmem() / 1048576), freeMb: Math.floor(freemem() / 1048576) }))
+  ipcMain.handle(IPC.app.diagnostics, () => collectDiagnostics())
+  ipcMain.handle(IPC.app.exportSettings, () => exportSettings())
+  ipcMain.handle(IPC.app.importSettings, () => importSettings())
 
   ipcMain.on(IPC.window.minimize, (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())
   ipcMain.on(IPC.window.maximizeToggle, (e) => {

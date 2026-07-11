@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, ServerCog, ShieldAlert, UserPlus } from "lucide-react"
-import type { AppInfo, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
-import { accountAvatar, useStore } from "../store/useStore"
+import { Activity, Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, RefreshCw, ServerCog, ShieldAlert, Upload, User, UserPlus } from "lucide-react"
+import type { AppInfo, DiagnosticsReport, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
+import { accountAvatar, accountSkin, activeAccount, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
+
+const SkinViewer = lazy(() => import("../components/SkinViewer").then((m) => ({ default: m.SkinViewer })))
 
 const AIKARS_FLAGS =
   "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1HeapRegionSize=8M"
@@ -32,6 +34,34 @@ export function SettingsScreen(): React.JSX.Element {
   const [runtimes, setRuntimes] = useState<JavaRuntime[] | null>(null)
   const [memory, setMemory] = useState<SystemMemoryInfo | null>(null)
   const [jvmArgs, setJvmArgs] = useState("")
+  const [diagnostics, setDiagnostics] = useState<DiagnosticsReport | null>(null)
+  const [diagBusy, setDiagBusy] = useState(false)
+
+  async function runDiagnostics(): Promise<void> {
+    setDiagBusy(true)
+    try {
+      setDiagnostics(await window.ordolith.app.diagnostics())
+    } finally {
+      setDiagBusy(false)
+    }
+  }
+
+  async function exportSettingsFile(): Promise<void> {
+    const res = await window.ordolith.app.exportSettings()
+    if (res.ok) pushToast(t("sync.exported"), "success")
+    else if (res.error !== "cancelled") pushToast(t("toast.error"), "error")
+  }
+
+  async function importSettingsFile(): Promise<void> {
+    const res = await window.ordolith.app.importSettings()
+    if (res.ok) {
+      await useStore.getState().refreshSettings()
+      await useStore.getState().refreshServers()
+      pushToast(t("sync.imported"), "success")
+    } else if (res.error !== "cancelled") {
+      pushToast(t("toast.error"), "error")
+    }
+  }
 
   useEffect(() => {
     window.ordolith.app.getInfo().then(setInfo)
@@ -237,6 +267,32 @@ export function SettingsScreen(): React.JSX.Element {
         </div>
       </section>
 
+      {/* 3D character ------------------------------------------------ */}
+      {(() => {
+        const current = activeAccount(accounts)
+        const skin = accountSkin(current)
+        return (
+          <section className="panel glass">
+            <div className="panel__head">
+              <h3>
+                <User size={16} /> {t("character.title")}
+              </h3>
+            </div>
+            <p className="panel__desc">{t("character.desc")}</p>
+            {current && skin ? (
+              <div className="character-stage">
+                <Suspense fallback={<div className="skin-viewer__fallback" />}>
+                  <SkinViewer skinUrl={skin} />
+                </Suspense>
+                <span className="character-stage__name">{current.username}</span>
+              </div>
+            ) : (
+              <p className="panel__empty">{t("character.empty")}</p>
+            )}
+          </section>
+        )
+      })()}
+
       {/* Java + memory defaults ------------------------------------- */}
       <section className="panel glass">
         <div className="panel__head">
@@ -318,6 +374,50 @@ export function SettingsScreen(): React.JSX.Element {
           />
           {t("settings.closeToTray")}
         </label>
+      </section>
+
+      {/* Diagnostics ------------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <Activity size={16} /> {t("diagnostics.title")}
+          </h3>
+          <button className="btn" onClick={runDiagnostics} disabled={diagBusy}>
+            <RefreshCw size={16} /> {diagBusy ? t("diagnostics.running") : t("diagnostics.run")}
+          </button>
+        </div>
+        <p className="panel__desc">{t("diagnostics.desc")}</p>
+        {diagnostics ? (
+          <div className="diag-list">
+            {diagnostics.items.map((item) => (
+              <div key={item.id} className="diag-row">
+                <span className={`diag-row__dot is-${item.status}`} aria-hidden />
+                <span className="diag-row__label">{t(item.labelKey)}</span>
+                <span className="diag-row__value">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="panel__empty">{t("diagnostics.empty")}</p>
+        )}
+      </section>
+
+      {/* Backup & sync ----------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <HardDrive size={16} /> {t("sync.title")}
+          </h3>
+        </div>
+        <p className="panel__desc">{t("sync.desc")}</p>
+        <div className="about-links">
+          <button className="btn" onClick={exportSettingsFile}>
+            <Download size={16} /> {t("sync.export")}
+          </button>
+          <button className="btn" onClick={importSettingsFile}>
+            <Upload size={16} /> {t("sync.import")}
+          </button>
+        </div>
       </section>
 
       {/* Data folder ------------------------------------------------- */}
