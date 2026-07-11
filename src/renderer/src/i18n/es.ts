@@ -314,6 +314,11 @@ export const es: Dictionary = {
       generic: "Revisa la primera línea de error en el registro para identificar la causa.",
     },
   },
+  character: {
+    title: "Tu personaje",
+    desc: "Render 3D en vivo de la skin de Minecraft de la cuenta activa. Arrastra para girar.",
+    empty: "Añade una cuenta para ver tu personaje.",
+  },
   diagnostics: {
     title: "Diagnóstico",
     desc: "Comprueba el estado de tu sistema y del launcher en un solo lugar.",

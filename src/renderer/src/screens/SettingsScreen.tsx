@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Activity, Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, RefreshCw, ServerCog, ShieldAlert, Upload, UserPlus } from "lucide-react"
+import { Activity, Check, Code2, Download, FolderOpen, Globe, HardDrive, LifeBuoy, LogOut, Palette, RefreshCw, ServerCog, ShieldAlert, Upload, User, UserPlus } from "lucide-react"
 import type { AppInfo, DiagnosticsReport, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
-import { accountAvatar, useStore } from "../store/useStore"
+import { accountAvatar, accountSkin, activeAccount, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
+
+const SkinViewer = lazy(() => import("../components/SkinViewer").then((m) => ({ default: m.SkinViewer })))
 
 const AIKARS_FLAGS =
   "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1HeapRegionSize=8M"
@@ -264,6 +266,32 @@ export function SettingsScreen(): React.JSX.Element {
           </button>
         </div>
       </section>
+
+      {/* 3D character ------------------------------------------------ */}
+      {(() => {
+        const current = activeAccount(accounts)
+        const skin = accountSkin(current)
+        return (
+          <section className="panel glass">
+            <div className="panel__head">
+              <h3>
+                <User size={16} /> {t("character.title")}
+              </h3>
+            </div>
+            <p className="panel__desc">{t("character.desc")}</p>
+            {current && skin ? (
+              <div className="character-stage">
+                <Suspense fallback={<div className="skin-viewer__fallback" />}>
+                  <SkinViewer skinUrl={skin} />
+                </Suspense>
+                <span className="character-stage__name">{current.username}</span>
+              </div>
+            ) : (
+              <p className="panel__empty">{t("character.empty")}</p>
+            )}
+          </section>
+        )
+      })()}
 
       {/* Java + memory defaults ------------------------------------- */}
       <section className="panel glass">

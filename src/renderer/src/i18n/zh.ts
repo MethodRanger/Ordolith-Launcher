@@ -313,6 +313,11 @@ export const zh: Dictionary = {
       generic: "查看下方日志中的第一行错误以定位原因。",
     },
   },
+  character: {
+    title: "你的角色",
+    desc: "当前账户 Minecraft 皮肤的实时 3D 渲染。拖动即可旋转。",
+    empty: "添加账户以预览你的角色。",
+  },
   diagnostics: {
     title: "诊断",
     desc: "在一处查看系统与启动器的运行状况。",

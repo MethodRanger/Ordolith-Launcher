@@ -313,6 +313,11 @@ export const en = {
       generic: "Check the log below for the first error line to identify the culprit.",
     },
   },
+  character: {
+    title: "Your character",
+    desc: "A live 3D render of the active account's Minecraft skin. Drag to rotate.",
+    empty: "Add an account to preview your character.",
+  },
   diagnostics: {
     title: "Diagnostics",
     desc: "Check your system and launcher health in one place.",

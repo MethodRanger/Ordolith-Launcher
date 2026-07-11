@@ -180,3 +180,13 @@ export function accountAvatar(account: Pick<Account, "avatarUrl" | "username"> |
   if (account.username) return `https://mc-heads.net/avatar/${encodeURIComponent(account.username)}/64`
   return undefined
 }
+
+/**
+ * Resolve the full-body skin texture (64x64 PNG) for an account, used by the
+ * 3D character viewer. Falls back to the deterministic default skin for
+ * unknown names.
+ */
+export function accountSkin(account: Pick<Account, "username"> | null | undefined): string | undefined {
+  if (!account?.username) return undefined
+  return `https://mc-heads.net/skin/${encodeURIComponent(account.username)}`
+}
