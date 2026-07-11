@@ -3,7 +3,7 @@ import type {
   ContentType, ContentUpdate, CrashReport, FavoriteContent, GameLogLine, InstalledContent, Instance, InstanceProfile, InstanceSettings, JavaRuntime,
   LaunchResult, LauncherSettings, ModLoader, ModpackInstallProgress, ModpackProject, ModpackSearchQuery,
   ModpackSearchResult, PlaySession, ProgressEvent, ResolvedDependency, ResourceSample, SavedServer, Screenshot, ServerStatus,
-  SystemMemoryInfo, VersionManifest, VersionSummary,
+  SystemMemoryInfo, ThemeId, VersionManifest, VersionSummary,
 } from "./types"
 
 export const IPC = {

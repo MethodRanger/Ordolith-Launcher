@@ -26,6 +26,7 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     paths.ensureBase()
+    registerMediaProtocol()
     registerIpcHandlers()
     mainWindow = createMainWindow()
     createTray(() => mainWindow)

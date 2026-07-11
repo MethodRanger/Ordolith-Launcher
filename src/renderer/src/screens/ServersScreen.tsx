@@ -15,6 +15,7 @@ function fallbackIcon(host: string, port: number): string {
 export function ServersScreen(): React.JSX.Element {
   const servers = useStore((s) => s.servers)
   const refreshServers = useStore((s) => s.refreshServers)
+  const autoRefresh = useStore((s) => s.settings?.serverAutoRefresh ?? true)
   const { t } = useI18n()
   const [statuses, setStatuses] = useState<Record<string, ServerStatus | "loading">>({})
   const [adding, setAdding] = useState(false)
@@ -35,6 +36,17 @@ export function ServersScreen(): React.JSX.Element {
     pingAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servers.length])
+
+  // Optionally re-ping every saved server on a fixed interval so the status
+  // dots and player counts stay live without manual refreshing.
+  useEffect(() => {
+    if (!autoRefresh || servers.length === 0) return
+    const timer = setInterval(() => {
+      for (const srv of servers) ping(srv.id, srv.host, srv.port)
+    }, 30000)
+    return () => clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefresh, servers])
 
   async function add(): Promise<void> {
     const trimmedName = name.trim()

@@ -292,7 +292,7 @@ export async function updateContent(instanceId: string, type: ContentSearchQuery
 export async function getRecommended(type: ContentSearchQuery["type"], loader?: ModLoader, gameVersion?: string): Promise<ContentProject[]> {
   try {
     return await modrinthSearch(
-      { query: "", type, sort: "downloads", limit: 8, offset: 0 } as ContentSearchQuery,
+      { query: "", type, sort: "downloads", limit: 8, offset: 0 },
       { loader: loader ?? "vanilla", gameVersion },
     )
   } catch {

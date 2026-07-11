@@ -1,10 +1,13 @@
 import { create } from "zustand"
 import type {
   Account,
+  FavoriteContent,
   GameLogLine,
   Instance,
   LauncherSettings,
+  PlaySession,
   ProgressEvent,
+  ResourceSample,
   SavedServer,
   VersionSummary,
 } from "@shared/ipc"
@@ -15,6 +18,8 @@ export type View = "play" | "instances" | "mods" | "servers" | "news" | "setting
 interface LaunchState {
   progress: ProgressEvent | null
   logs: GameLogLine[]
+  /** Latest live resource sample for the running instance. */
+  resource: ResourceSample | null
 }
 
 export interface Toast {
@@ -34,6 +39,8 @@ interface StoreState {
   selectedInstanceId: string | null
   launch: LaunchState
   settings: LauncherSettings | null
+  sessions: PlaySession[]
+  favorites: FavoriteContent[]
   toasts: Toast[]
 
   setView: (view: View) => void
@@ -42,6 +49,9 @@ interface StoreState {
   refreshInstances: () => Promise<void>
   refreshServers: () => Promise<void>
   refreshSettings: () => Promise<void>
+  refreshSessions: () => Promise<void>
+  refreshFavorites: () => Promise<void>
+  saveSettings: (patch: Partial<LauncherSettings>) => Promise<void>
   selectInstance: (id: string | null) => void
   clearLogs: () => void
   pushToast: (message: string, kind?: Toast["kind"]) => void
@@ -57,18 +67,22 @@ export const useStore = create<StoreState>((set, get) => ({
   versions: [],
   latestRelease: "",
   selectedInstanceId: null,
-  launch: { progress: null, logs: [] },
+  launch: { progress: null, logs: [], resource: null },
   settings: null,
+  sessions: [],
+  favorites: [],
   toasts: [],
 
   setView: (view) => set({ view }),
 
   bootstrap: async () => {
-    const [accounts, instances, servers, settings] = await Promise.all([
+    const [accounts, instances, servers, settings, sessions, favorites] = await Promise.all([
       window.ordolith.accounts.list(),
       window.ordolith.instances.list(),
       window.ordolith.servers.list(),
       window.ordolith.app.getSettings(),
+      window.ordolith.sessions.list(),
+      window.ordolith.favorites.list(),
     ])
 
     // Apply the persisted interface language.
@@ -81,11 +95,20 @@ export const useStore = create<StoreState>((set, get) => ({
       .catch(() => set({ versions: [] }))
 
     // Stream launch progress + logs into the store.
-    window.ordolith.launcher.onProgress((e) =>
-      set((s) => ({ launch: { ...s.launch, progress: e } })),
-    )
+    window.ordolith.launcher.onProgress((e) => {
+      set((s) => ({ launch: { ...s.launch, progress: e } }))
+      // A finished/failed session updates history + clears the live sample.
+      if (e.stage === "done" || e.stage === "error") {
+        set((s) => ({ launch: { ...s.launch, resource: null } }))
+        void get().refreshSessions()
+        void get().refreshInstances()
+      }
+    })
     window.ordolith.launcher.onLog((e) =>
       set((s) => ({ launch: { ...s.launch, logs: [...s.launch.logs, e].slice(-500) } })),
+    )
+    window.ordolith.resources.onSample((sample) =>
+      set((s) => ({ launch: { ...s.launch, resource: sample } })),
     )
 
     set({
@@ -93,6 +116,8 @@ export const useStore = create<StoreState>((set, get) => ({
       instances,
       servers,
       settings,
+      sessions,
+      favorites,
       selectedInstanceId: get().selectedInstanceId ?? instances[0]?.id ?? null,
       ready: true,
     })
@@ -114,6 +139,17 @@ export const useStore = create<StoreState>((set, get) => ({
   refreshServers: async () => set({ servers: await window.ordolith.servers.list() }),
 
   refreshSettings: async () => set({ settings: await window.ordolith.app.getSettings() }),
+
+  refreshSessions: async () => set({ sessions: await window.ordolith.sessions.list() }),
+
+  refreshFavorites: async () => set({ favorites: await window.ordolith.favorites.list() }),
+
+  saveSettings: async (patch) => {
+    const current = get().settings
+    if (!current) return
+    const next = await window.ordolith.app.saveSettings({ ...current, ...patch })
+    set({ settings: next })
+  },
 
   selectInstance: (id) => set({ selectedInstanceId: id }),
 

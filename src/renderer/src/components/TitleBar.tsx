@@ -7,14 +7,20 @@ import logo from "../assets/logo"
  * (titleBarStyle: "hidden"), so our own window buttons are hidden there and we
  * add left padding to make room for them.
  */
-export function TitleBar({ platform }: { platform: NodeJS.Platform }): React.JSX.Element {
+export function TitleBar({
+  platform,
+  crashMode,
+}: {
+  platform: NodeJS.Platform
+  crashMode?: boolean
+}): React.JSX.Element {
   const isMac = platform === "darwin"
 
   return (
     <header className="titlebar drag" style={{ paddingLeft: isMac ? 84 : 16 }}>
       <div className="titlebar__brand">
         <img className="titlebar__logo" src={logo} alt="" aria-hidden />
-        <span className="titlebar__name">Ordolith</span>
+        <span className="titlebar__name">Ordolith{crashMode ? " — Crash Assistant" : ""}</span>
       </div>
 
       {!isMac && (

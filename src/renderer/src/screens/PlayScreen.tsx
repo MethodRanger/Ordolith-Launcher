@@ -1,9 +1,21 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import { Play, Square, Terminal, Trash2 } from "lucide-react"
+import { Cpu, History, Image as ImageIcon, MemoryStick, Play, Square, Terminal, Timer, Trash2 } from "lucide-react"
+import type { Screenshot } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
 import logo from "../assets/logo"
+
+/** Format a millisecond duration as compact `1h 20m` / `45s`. */
+function formatDuration(ms: number): string {
+  const totalSec = Math.round(ms / 1000)
+  const h = Math.floor(totalSec / 3600)
+  const m = Math.floor((totalSec % 3600) / 60)
+  const s = totalSec % 60
+  if (h > 0) return `${h}h ${m}m`
+  if (m > 0) return `${m}m ${s}s`
+  return `${s}s`
+}
 
 export function PlayScreen(): React.JSX.Element {
   const instances = useStore((s) => s.instances)
@@ -11,23 +23,37 @@ export function PlayScreen(): React.JSX.Element {
   const selectInstance = useStore((s) => s.selectInstance)
   const setView = useStore((s) => s.setView)
   const progress = useStore((s) => s.launch.progress)
+  const resource = useStore((s) => s.launch.resource)
   const logs = useStore((s) => s.launch.logs)
   const clearLogs = useStore((s) => s.clearLogs)
-  const { t } = useI18n()
+  const sessions = useStore((s) => s.sessions)
+  const { t, locale } = useI18n()
   const stageLabel = (stage: string): string => t(`stage.${stage}`)
   const [showLogs, setShowLogs] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [screenshots, setScreenshots] = useState<Screenshot[]>([])
 
   const instance = useMemo(
     () => instances.find((i) => i.id === selectedId) ?? instances[0] ?? null,
     [instances, selectedId],
   )
 
+  const instanceSessions = useMemo(
+    () => sessions.filter((s) => s.instanceId === instance?.id).slice(0, 8),
+    [sessions, instance?.id],
+  )
+
+  useEffect(() => {
+    if (!instance) return
+    window.ordolith.screenshots.list(instance.id).then(setScreenshots).catch(() => setScreenshots([]))
+  }, [instance?.id, progress?.stage])
+
   const busy =
     !!progress &&
     progress.instanceId === instance?.id &&
     !["idle", "done", "error"].includes(progress.stage)
   const running = progress?.instanceId === instance?.id && progress?.stage === "running"
+  const liveResource = running && resource?.instanceId === instance?.id ? resource : null
 
   async function launch(): Promise<void> {
     if (!instance) return
@@ -59,6 +85,7 @@ export function PlayScreen(): React.JSX.Element {
   }
 
   const pct = Math.round((progress?.fraction ?? 0) * 100)
+  const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" })
 
   return (
     <div className="content">
@@ -88,6 +115,20 @@ export function PlayScreen(): React.JSX.Element {
                 />
               </div>
               <p className="progress__detail">{progress!.detail}</p>
+            </div>
+          )}
+
+          {liveResource && (
+            <div className="resmon" aria-live="polite">
+              <span className="resmon__stat">
+                <Cpu size={15} /> {liveResource.cpu}%
+              </span>
+              <span className="resmon__stat">
+                <MemoryStick size={15} /> {liveResource.memoryMb} MB
+              </span>
+              <span className="resmon__stat">
+                <Timer size={15} /> {formatDuration(liveResource.uptimeMs)}
+              </span>
             </div>
           )}
 
@@ -130,6 +171,54 @@ export function PlayScreen(): React.JSX.Element {
             <span className="instance-chip__ver">{i.versionId}</span>
           </button>
         ))}
+      </div>
+
+      <div className="play-grid">
+        <section className="panel glass">
+          <div className="panel__head">
+            <h3>
+              <History size={16} /> {t("play.history")}
+            </h3>
+          </div>
+          {instanceSessions.length === 0 ? (
+            <p className="panel__empty">{t("play.noHistory")}</p>
+          ) : (
+            <ul className="session-list">
+              {instanceSessions.map((s) => (
+                <li key={s.id} className="session-row">
+                  <span className={`session-row__dot ${s.crashed ? "is-crash" : ""}`} aria-hidden />
+                  <span className="session-row__date">{dateFmt.format(s.startedAt)}</span>
+                  <span className="session-row__dur">{formatDuration(s.durationMs)}</span>
+                  {s.crashed && <span className="badge badge-danger">{t("play.crashed")}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="panel glass">
+          <div className="panel__head">
+            <h3>
+              <ImageIcon size={16} /> {t("play.screenshots")}
+            </h3>
+          </div>
+          {screenshots.length === 0 ? (
+            <p className="panel__empty">{t("play.noScreenshots")}</p>
+          ) : (
+            <div className="shot-grid">
+              {screenshots.slice(0, 9).map((shot) => (
+                <button
+                  key={shot.name}
+                  className="shot"
+                  onClick={() => window.ordolith.screenshots.reveal(shot.path)}
+                  title={shot.name}
+                >
+                  <img src={shot.url} alt={shot.name} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
       {showLogs && (

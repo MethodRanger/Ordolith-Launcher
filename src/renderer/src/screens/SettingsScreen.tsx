@@ -1,18 +1,28 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { Check, Download, FolderOpen, Globe, HardDrive, LogOut, UserPlus } from "lucide-react"
-import type { AppInfo, JavaRuntime, SystemMemoryInfo } from "@shared/ipc"
+import { Check, Download, FolderOpen, Globe, HardDrive, LogOut, Palette, ServerCog, ShieldAlert, UserPlus } from "lucide-react"
+import type { AppInfo, JavaRuntime, SystemMemoryInfo, ThemeId } from "@shared/ipc"
 import { accountAvatar, useStore } from "../store/useStore"
 import { LOCALES, useI18n } from "../i18n"
 
 const AIKARS_FLAGS =
   "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:G1HeapRegionSize=8M"
 
+/** Selectable UI themes, each mapped to a preview accent + base swatch. */
+const THEMES: { id: ThemeId; accent: string; base: string }[] = [
+  { id: "ordolith", accent: "#4cc8ff", base: "#0e1118" },
+  { id: "midnight", accent: "#6ea8fe", base: "#0a0c14" },
+  { id: "nebula", accent: "#c77dff", base: "#120e1a" },
+  { id: "forest", accent: "#54d18c", base: "#0b120e" },
+  { id: "sunset", accent: "#ff9d54", base: "#160f0d" },
+  { id: "mono", accent: "#c4c9d4", base: "#101216" },
+]
+
 export function SettingsScreen(): React.JSX.Element {
   const accounts = useStore((s) => s.accounts)
   const refreshAccounts = useStore((s) => s.refreshAccounts)
   const settings = useStore((s) => s.settings)
-  const refreshSettings = useStore((s) => s.refreshSettings)
+  const saveSettingsStore = useStore((s) => s.saveSettings)
   const pushToast = useStore((s) => s.pushToast)
   const { t, locale, setLocale } = useI18n()
 
@@ -34,9 +44,7 @@ export function SettingsScreen(): React.JSX.Element {
   }, [settings])
 
   async function patchSettings(patch: Partial<NonNullable<typeof settings>>): Promise<void> {
-    if (!settings) return
-    await window.ordolith.app.saveSettings({ ...settings, ...patch })
-    await refreshSettings()
+    await saveSettingsStore(patch)
   }
 
   async function setActive(id: string): Promise<void> {
@@ -115,6 +123,55 @@ export function SettingsScreen(): React.JSX.Element {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Appearance -------------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <Palette size={16} /> {t("settings.appearance")}
+          </h3>
+        </div>
+        <p className="panel__desc">{t("settings.themeDesc")}</p>
+        <div className="theme-grid">
+          {THEMES.map((th) => (
+            <button
+              key={th.id}
+              className={`theme-opt ${settings?.theme === th.id ? "is-active" : ""}`}
+              onClick={() => patchSettings({ theme: th.id })}
+              style={{ background: th.base }}
+            >
+              <span className="theme-opt__swatch" style={{ background: th.accent }} aria-hidden />
+              <span className="theme-opt__name">{t(`settings.theme.${th.id}`)}</span>
+              {settings?.theme === th.id && <Check size={14} className="theme-opt__check" />}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Preferences ------------------------------------------------- */}
+      <section className="panel glass">
+        <div className="panel__head">
+          <h3>
+            <ServerCog size={16} /> {t("settings.preferences")}
+          </h3>
+        </div>
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={settings?.serverAutoRefresh ?? true}
+            onChange={(e) => patchSettings({ serverAutoRefresh: e.target.checked })}
+          />
+          {t("settings.serverAutoRefresh")}
+        </label>
+        <label className="toggle-row">
+          <input
+            type="checkbox"
+            checked={settings?.crashAssistant ?? true}
+            onChange={(e) => patchSettings({ crashAssistant: e.target.checked })}
+          />
+          <ShieldAlert size={15} /> {t("settings.crashAssistant")}
+        </label>
       </section>
 
       {/* Accounts ---------------------------------------------------- */}
