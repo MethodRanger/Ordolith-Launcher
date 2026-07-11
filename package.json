@@ -5,6 +5,10 @@
   "main": "./out/main/index.js",
   "author": "MethodRanger",
   "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MethodRanger/Ordolith-Launcher.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "electron-vite dev",

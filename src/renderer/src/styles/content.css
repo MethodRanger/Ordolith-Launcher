@@ -948,3 +948,20 @@ textarea.input {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ================================================================== */
+/* Support panel + source links (About section)                       */
+/* ================================================================== */
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.support-link {
+  text-decoration: none;
+}
+.about-tagline {
+  margin: 10px 0 0;
+  max-width: 52ch;
+}

@@ -235,6 +235,10 @@ export const es: Dictionary = {
     dataDir: "Carpeta de datos",
     openDataDir: "Abrir",
     about: "Acerca de",
+    support: "Panel de soporte",
+    sourceCode: "Código fuente",
+    openSource:
+      "Lanzador de Minecraft de código abierto centrado en la flexibilidad, el juego sin conexión y una gestión de instancias ordenada.",
     closeToTray: "Mantener en la bandeja del sistema al cerrar",
     appearance: "Apariencia",
     themeDesc: "Elige un tema de acento para la interfaz del lanzador.",
