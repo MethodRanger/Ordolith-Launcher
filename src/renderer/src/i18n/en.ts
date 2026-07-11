@@ -103,6 +103,16 @@ export const en = {
     active: "Active",
     apply: "Apply",
   },
+  backups: {
+    title: "World backups",
+    desc: "Snapshot this instance's saves so you can roll back later.",
+    create: "Back up now",
+    created: "Backup created",
+    restore: "Restore",
+    restored: "Backup restored",
+    empty: "No backups yet.",
+    openFolder: "Open backups folder",
+  },
   mods: {
     title: "Content",
     subtitle: "Browse mods, resource packs and shaders from Modrinth and CurseForge.",

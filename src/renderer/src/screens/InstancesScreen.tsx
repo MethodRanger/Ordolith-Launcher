@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import { Boxes, Clock, Copy, Download, FolderOpen, Layers, Package, Play, Plus, Save, Timer, Trash2, Upload } from "lucide-react"
-import type { ContentProject, ContentType, Instance, InstanceProfile, ModLoader } from "@shared/ipc"
+import { Archive, Boxes, Clock, Copy, Download, FolderOpen, Layers, Package, Play, Plus, RotateCcw, Save, Timer, Trash2, Upload } from "lucide-react"
+import type { BackupEntry, ContentProject, ContentType, Instance, InstanceProfile, ModLoader } from "@shared/ipc"
 import { useStore } from "../store/useStore"
 import { useI18n } from "../i18n"
 import { ContentBrowser } from "../components/ContentBrowser"
@@ -14,6 +14,19 @@ function formatPlayTime(ms?: number): string {
   const h = Math.floor(totalMin / 60)
   const m = totalMin % 60
   return h > 0 ? `${h}h ${m}m` : `${m}m`
+}
+
+/** Human-readable file size, e.g. "12.4 MB". */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  const units = ["KB", "MB", "GB"]
+  let size = bytes / 1024
+  let i = 0
+  while (size >= 1024 && i < units.length - 1) {
+    size /= 1024
+    i++
+  }
+  return `${size.toFixed(1)} ${units[i]}`
 }
 
 const LOADERS: ModLoader[] = ["vanilla", "fabric", "forge", "quilt", "neoforge"]
@@ -203,15 +216,47 @@ function ManageInstanceDialog({
   const [activeId, setActiveId] = useState<string | undefined>(instance.activeProfileId)
   const [newName, setNewName] = useState("")
   const [busy, setBusy] = useState(false)
+  const [backups, setBackups] = useState<BackupEntry[]>([])
 
   async function reload(): Promise<void> {
-    setProfiles(await window.ordolith.instances.listProfiles(instance.id))
+    const [nextProfiles, nextBackups] = await Promise.all([
+      window.ordolith.instances.listProfiles(instance.id),
+      window.ordolith.backups.list(instance.id),
+    ])
+    setProfiles(nextProfiles)
+    setBackups(nextBackups)
   }
 
   useEffect(() => {
     void reload()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance.id])
+
+  async function createBackup(): Promise<void> {
+    setBusy(true)
+    try {
+      await window.ordolith.backups.create(instance.id)
+      await reload()
+      pushToast(t("backups.created"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function restoreBackup(id: string): Promise<void> {
+    setBusy(true)
+    try {
+      await window.ordolith.backups.restore(id)
+      pushToast(t("backups.restored"), "success")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function removeBackup(id: string): Promise<void> {
+    await window.ordolith.backups.remove(id)
+    await reload()
+  }
 
   async function save(): Promise<void> {
     if (!newName.trim()) return
@@ -308,7 +353,47 @@ function ManageInstanceDialog({
           ))}
         </div>
 
+        <div className="field">
+          <div className="field__head">
+            <label>
+              <Archive size={15} /> {t("backups.title")}
+            </label>
+            <button className="btn btn-sm" onClick={createBackup} disabled={busy}>
+              <Save size={14} /> {t("backups.create")}
+            </button>
+          </div>
+          <p className="panel__desc">{t("backups.desc")}</p>
+          <div className="profile-list">
+            {backups.length === 0 && <p className="empty-hint">{t("backups.empty")}</p>}
+            {backups.map((b) => (
+              <div key={b.id} className="profile-row">
+                <div className="profile-row__info">
+                  <span className="profile-row__name">
+                    {new Date(b.createdAt).toLocaleString()}
+                  </span>
+                  <span className="profile-row__meta">{formatBytes(b.size)}</span>
+                </div>
+                <div className="profile-row__actions">
+                  <button className="btn btn-sm" onClick={() => restoreBackup(b.id)} disabled={busy}>
+                    <RotateCcw size={14} /> {t("backups.restore")}
+                  </button>
+                  <button
+                    className="btn btn-icon btn-sm"
+                    aria-label={t("common.remove")}
+                    onClick={() => removeBackup(b.id)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="modal__actions">
+          <button className="btn btn-ghost" onClick={() => window.ordolith.backups.openFolder()}>
+            <FolderOpen size={15} /> {t("backups.openFolder")}
+          </button>
           <button className="btn btn-ghost" onClick={onClose}>
             {t("common.close")}
           </button>

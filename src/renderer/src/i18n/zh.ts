@@ -104,6 +104,16 @@ export const zh: Dictionary = {
     active: "当前",
     apply: "应用",
   },
+  backups: {
+    title: "世界备份",
+    desc: "为此实例的存档创建快照，方便日后回滚。",
+    create: "立即备份",
+    created: "已创建备份",
+    restore: "恢复",
+    restored: "已恢复备份",
+    empty: "还没有备份。",
+    openFolder: "打开备份文件夹",
+  },
   mods: {
     title: "内容",
     subtitle: "从 Modrinth 和 CurseForge 浏览模组、资源包与光影。",

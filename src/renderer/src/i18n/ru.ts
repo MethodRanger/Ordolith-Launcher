@@ -104,6 +104,16 @@ export const ru: Dictionary = {
     active: "Активен",
     apply: "Применить",
   },
+  backups: {
+    title: "Резервные копии миров",
+    desc: "Сохраните снимок сохранений этой сборки, чтобы откатиться позже.",
+    create: "Создать копию",
+    created: "Копия создана",
+    restore: "Восстановить",
+    restored: "Копия восстановлена",
+    empty: "Копий пока нет.",
+    openFolder: "Открыть папку копий",
+  },
   mods: {
     title: "Контент",
     subtitle: "Моды, ресурспаки и шейдеры из Modrinth и CurseForge.",

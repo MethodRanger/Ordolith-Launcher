@@ -616,6 +616,19 @@ textarea.input {
 /* ================================================================== */
 /* Instance mod profiles (Manage dialog)                              */
 /* ================================================================== */
+.field__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.field__head label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
 .profile-list {
   display: flex;
   flex-direction: column;

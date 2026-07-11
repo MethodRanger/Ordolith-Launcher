@@ -104,6 +104,16 @@ export const es: Dictionary = {
     active: "Activo",
     apply: "Aplicar",
   },
+  backups: {
+    title: "Copias de mundos",
+    desc: "Guarda una instantánea de las partidas de esta instancia para revertir después.",
+    create: "Crear copia",
+    created: "Copia creada",
+    restore: "Restaurar",
+    restored: "Copia restaurada",
+    empty: "Aún no hay copias.",
+    openFolder: "Abrir carpeta de copias",
+  },
   mods: {
     title: "Contenido",
     subtitle: "Explora mods, paquetes de recursos y shaders de Modrinth y CurseForge.",
