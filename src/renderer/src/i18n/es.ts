@@ -9,6 +9,14 @@ export const es: Dictionary = {
     news: "Novedades",
     settings: "Ajustes",
   },
+  palette: {
+    placeholder: "Buscar pantallas y acciones…",
+    empty: "Sin coincidencias.",
+    navigate: "Ir a",
+    actions: "Acciones",
+    launchLast: "Iniciar última instancia",
+    open: "Abrir paleta de comandos",
+  },
   common: {
     add: "Añadir",
     cancel: "Cancelar",

@@ -9,6 +9,14 @@ export const zh: Dictionary = {
     news: "新闻",
     settings: "设置",
   },
+  palette: {
+    placeholder: "搜索页面与操作…",
+    empty: "无匹配项。",
+    navigate: "前往",
+    actions: "操作",
+    launchLast: "启动上次的实例",
+    open: "打开命令面板",
+  },
   common: {
     add: "添加",
     cancel: "取消",

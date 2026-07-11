@@ -8,6 +8,14 @@ export const en = {
     news: "News",
     settings: "Settings",
   },
+  palette: {
+    placeholder: "Search screens and actions…",
+    empty: "No matches.",
+    navigate: "Go to",
+    actions: "Actions",
+    launchLast: "Launch last instance",
+    open: "Open command palette",
+  },
   common: {
     add: "Add",
     cancel: "Cancel",

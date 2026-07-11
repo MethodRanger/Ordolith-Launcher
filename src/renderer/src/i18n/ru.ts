@@ -9,6 +9,14 @@ export const ru: Dictionary = {
     news: "Новости",
     settings: "Настройки",
   },
+  palette: {
+    placeholder: "Поиск экранов и действий…",
+    empty: "Ничего не найдено.",
+    navigate: "Перейти",
+    actions: "Действия",
+    launchLast: "Запустить последнюю сборку",
+    open: "Открыть палитру команд",
+  },
   common: {
     add: "Добавить",
     cancel: "Отмена",
