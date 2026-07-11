@@ -195,11 +195,17 @@ export const ru: Dictionary = {
   news: {
     title: "Что нового в Minecraft",
     subtitle: "Главное по версиям, от новых к старым.",
+    eyebrow: "Список изменений",
     searchPlaceholder: "Поиск по обновлениям",
     noResults: "Ничего не найдено по запросу.",
     added: "Добавлено",
     changed: "Изменено",
     fixed: "Исправлено",
+    allVersions: "Все версии",
+    filterLabel: "Линейка версий",
+    lineHint: "{v} и её подверсии",
+    releasesOne: "{n} релиз",
+    releasesMany: "релизов: {n}",
     removed: "Удалено",
   },
   settings: {

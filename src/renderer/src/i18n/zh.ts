@@ -195,12 +195,18 @@ export const zh: Dictionary = {
   news: {
     title: "Minecraft 新增内容",
     subtitle: "按版本精选，从新到旧。",
+    eyebrow: "更新日志",
     searchPlaceholder: "搜索更新",
     noResults: "没有符合搜索的更新。",
     added: "新增",
     changed: "变更",
     fixed: "修复",
     removed: "移除",
+    allVersions: "所有版本",
+    filterLabel: "版本线",
+    lineHint: "{v} 及其子版本",
+    releasesOne: "{n} 个版本",
+    releasesMany: "{n} 个版本",
   },
   settings: {
     title: "设置",

@@ -195,12 +195,18 @@ export const es: Dictionary = {
   news: {
     title: "Novedades de Minecraft",
     subtitle: "Lo destacado por versión, de nuevo a antiguo.",
+    eyebrow: "Notas de versión",
     searchPlaceholder: "Buscar actualizaciones",
     noResults: "Ninguna actualización coincide con tu búsqueda.",
     added: "Añadido",
     changed: "Cambiado",
     fixed: "Corregido",
     removed: "Eliminado",
+    allVersions: "Todas las versiones",
+    filterLabel: "Línea de versión",
+    lineHint: "{v} y sus subversiones",
+    releasesOne: "{n} versión",
+    releasesMany: "{n} versiones",
   },
   settings: {
     title: "Ajustes",

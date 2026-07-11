@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import { CalendarDays, Minus, Plus, RefreshCw, Search, Sparkles, Wrench } from "lucide-react"
+import { CalendarDays, Layers, Minus, Plus, RefreshCw, Search, Sparkles, Wrench } from "lucide-react"
 import { useI18n } from "../i18n"
-import { CHANGELOG, type ChangeKind } from "../data/changelog"
+import { CHANGELOG, majorLines, type ChangeKind } from "../data/changelog"
 
 const KIND_META: {
   kind: ChangeKind
@@ -16,14 +16,27 @@ const KIND_META: {
   { kind: "removed", labelKey: "news.removed", icon: Minus, className: "is-removed" },
 ]
 
+const ALL = "__all__"
+
 export function NewsScreen(): React.JSX.Element {
   const { t, locale } = useI18n()
   const [query, setQuery] = useState("")
+  const [line, setLine] = useState<string>(ALL)
+
+  const lines = useMemo(() => majorLines(), [])
+
+  // Count releases per major line for the filter chips.
+  const counts = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const entry of CHANGELOG) map.set(entry.major, (map.get(entry.major) ?? 0) + 1)
+    return map
+  }, [])
 
   const entries = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return CHANGELOG
     return CHANGELOG.filter((entry) => {
+      if (line !== ALL && entry.major !== line) return false
+      if (!q) return true
       const haystack = [
         entry.version,
         entry.title[locale],
@@ -34,14 +47,18 @@ export function NewsScreen(): React.JSX.Element {
         .toLowerCase()
       return haystack.includes(q)
     })
-  }, [query, locale])
+  }, [query, locale, line])
+
+  const releaseWord = (n: number): string =>
+    n === 1 ? t("news.releasesOne", { n }) : t("news.releasesMany", { n })
 
   return (
     <div className="content">
       <div className="page-head page-head--row">
         <div>
+          <span className="eyebrow">{t("news.eyebrow")}</span>
           <h2>{t("news.title")}</h2>
-          <p>{t("news.subtitle")}</p>
+          <p>{line === ALL ? t("news.subtitle") : t("news.lineHint", { v: line })}</p>
         </div>
         <div className="searchbar glass news-search">
           <Search size={18} />
@@ -53,6 +70,37 @@ export function NewsScreen(): React.JSX.Element {
           />
         </div>
       </div>
+
+      <div className="version-filter" role="tablist" aria-label={t("news.filterLabel")}>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={line === ALL}
+          className={`version-chip ${line === ALL ? "is-active" : ""}`}
+          onClick={() => setLine(ALL)}
+        >
+          <Layers size={14} />
+          {t("news.allVersions")}
+          <span className="version-chip__count">{CHANGELOG.length}</span>
+        </button>
+        {lines.map((major) => (
+          <button
+            key={major}
+            type="button"
+            role="tab"
+            aria-selected={line === major}
+            className={`version-chip ${line === major ? "is-active" : ""}`}
+            onClick={() => setLine(major)}
+          >
+            {major}
+            <span className="version-chip__count">{counts.get(major) ?? 0}</span>
+          </button>
+        ))}
+      </div>
+
+      {line !== ALL && (
+        <p className="version-summary">{releaseWord(counts.get(line) ?? 0)}</p>
+      )}
 
       {entries.length === 0 ? (
         <div className="empty glass">
@@ -66,7 +114,7 @@ export function NewsScreen(): React.JSX.Element {
               className="release glass"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, type: "spring", stiffness: 300, damping: 26 }}
+              transition={{ delay: Math.min(index * 0.04, 0.3), type: "spring", stiffness: 300, damping: 26 }}
             >
               <div className="release__mark">
                 <Sparkles size={18} />
